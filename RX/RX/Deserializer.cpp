@@ -24,7 +24,7 @@ int Deserializer::deserializePacket(char buffer[])
 	std::copy(buffer + HEX_LENGTH, buffer + BUFFER_SIZE + 1, this->deserializedBuffer);
 
 	std::fill(buffer, buffer + BUFFER_SIZE + 1, '\0');
-	std::copy(this->deserializedBuffer, this->deserializedBuffer + BUFFER_SIZE -HEX_LENGTH + 1, buffer);
+	std::copy(this->deserializedBuffer, this->deserializedBuffer + BUFFER_SIZE - HEX_LENGTH + 1, buffer);
 
 	std::fill(this->deserializedBuffer, this->deserializedBuffer + BUFFER_SIZE - HEX_LENGTH + 1, '\0');
 

@@ -58,7 +58,8 @@ int main()
 void receivePackets(int socket, FileBuilder& file, Deserializer deserializer)
 {
 	/* This function will listen to incoming
-	   UDP packets and will print them */
+	   UDP packets and will write the 
+	   received buffer to a file */
 
 	char buffer[BUFFER_SIZE + 1];
 	slen = sizeof(cliaddr);
@@ -80,4 +81,3 @@ void receivePackets(int socket, FileBuilder& file, Deserializer deserializer)
 		file.writeToFile(buffer);
 	}
 }
-
