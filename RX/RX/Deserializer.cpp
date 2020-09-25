@@ -22,14 +22,11 @@ int Deserializer::deserializePacket(char buffer[])
 	int packetNumber = hexToInt(hexadecimal);
 
 	std::copy(buffer + HEX_LENGTH, buffer + BUFFER_SIZE + 1, this->deserializedBuffer);
-	//strncpy(this->deserializedBuffer, buffer + HEX_LENGTH, BUFFER_SIZE + 1);
 
 	std::fill(buffer, buffer + BUFFER_SIZE + 1, '\0');
 	std::copy(this->deserializedBuffer, this->deserializedBuffer + BUFFER_SIZE -HEX_LENGTH + 1, buffer);
-	//strncpy(buffer, this->deserializedBuffer, BUFFER_SIZE - HEX_LENGTH + 1);
 
 	std::fill(this->deserializedBuffer, this->deserializedBuffer + BUFFER_SIZE - HEX_LENGTH + 1, '\0');
-	//memset(this->deserializedBuffer, '\0', BUFFER_SIZE - HEX_LENGTH + 1);
 
 	return packetNumber;
 }
