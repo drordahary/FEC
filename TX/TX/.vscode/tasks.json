@@ -12,7 +12,8 @@
 				"Serializer.cpp",
 				"Storage.cpp",
 				"-o",
-				"${fileDirname}/${fileBasenameNoExtension}"
+				"${fileDirname}/${fileBasenameNoExtension}",
+				"-lhiredis"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
