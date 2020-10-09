@@ -5,11 +5,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include <hiredis/hiredis.h>
-
 #include "FileReader.h"
 #include "Serializer.h"
 #include "Storage.h"
+#include "RedisHandler.h"
 
 #pragma comment(lib, "ws2_32.lib")
 

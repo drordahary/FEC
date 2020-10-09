@@ -8,11 +8,6 @@ int main()
 	/* This main function will initialize the connection
 	   and will try to create a socket */
 
-	redisContext* context;
-	redisReply* reply;
-
-	context = redisConnect("127.0.0.1", 6379);
-
 	int sockfd;
 
 	slen = sizeof(si_other);
