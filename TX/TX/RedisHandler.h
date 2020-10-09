@@ -8,7 +8,7 @@ class RedisHandler
 {
 private:
     redisContext* context;
-	redisReply* reply;
+    redisReply* reply;
     int databaseID;
 
 public:
