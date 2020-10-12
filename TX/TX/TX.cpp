@@ -8,6 +8,8 @@ int main()
 	/* This main function will initialize the connection
 	   and will try to create a socket */
 
+	RedisHandler handler = RedisHandler(0);
+
 	int sockfd;
 
 	slen = sizeof(si_other);

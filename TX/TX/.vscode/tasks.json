@@ -11,6 +11,7 @@
 				"FileReader.cpp",
 				"Serializer.cpp",
 				"Storage.cpp",
+				"RedisHandler.cpp",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}",
 				"-lhiredis"

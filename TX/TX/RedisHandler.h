@@ -11,11 +11,14 @@ private:
     redisReply* reply;
     int databaseID;
 
+    void checkExecution();
+    std::string formatCommand(std::string fileMetaData[], int fileID);
+
 public:
     RedisHandler(int databaseID);
     ~RedisHandler();
 
     void connectToRedis();
-    void addToRedis(std::string fileMetaData);
-    void getFromRedis(int fileID);
+    void addToRedis(std::string fileMetaData[]);
+    int getLastFileID();
 };
