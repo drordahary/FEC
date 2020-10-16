@@ -6,7 +6,11 @@ int slen = sizeof(si_other);
 int main()
 {
 	/* This main function will initialize the connection
+	   and all the necessary objects
 	   and will try to create a socket */
+
+	DirectoryReader directoryReader = DirectoryReader("/home/magshimim/Documents/Files");
+	directoryReader.iterateDirectory("./ToSend");
 
 	RedisHandler handler = RedisHandler(0);
 
@@ -24,7 +28,7 @@ int main()
 	si_other.sin_port = htons(PORT);
 	inet_pton(AF_INET, IP, &(si_other.sin_addr));
 
-	std::string filepath = "Files/Read.txt";
+	std::string filepath = "/home/magshimim/Documents/Files/Read.txt";
 	FileReader reader(filepath.c_str());
 
 	Serializer serializer = Serializer();

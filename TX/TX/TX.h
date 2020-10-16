@@ -9,6 +9,7 @@
 #include "Serializer.h"
 #include "Storage.h"
 #include "RedisHandler.h"
+#include "DirectoryReader.h"
 
 #pragma comment(lib, "ws2_32.lib")
 
