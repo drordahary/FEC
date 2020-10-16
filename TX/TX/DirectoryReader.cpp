@@ -28,20 +28,27 @@ void DirectoryReader::iterateDirectory(std::string newPath)
 
     while ((this->entry = readdir(this->directory)) != NULL)
     {
-        // For now it will only print the files name
         if (this->entry->d_type == this->isFile)
         {
-            std::cout << this->entry->d_name << std::endl;
+            moveFile(newPath, this->entry->d_name);
         }
     }
     
     closedir(this->directory);
 }
 
-void DirectoryReader::moveFiles(std::string newPath)
+void DirectoryReader::moveFile(std::string newPath, std::string filename)
 {
     /* The function will move the files from the 
        current opened directory to the new path */
+
+    std::string pathToFile = this->directoryPath + "/" + filename;
+    newPath += "/" + filename;
+
+    if (rename(pathToFile.c_str(), newPath.c_str()) != 0)
+    {
+        throw("Couldn't move the file to a new location");
+    }
 }
 
 void DirectoryReader::setDirectoryPath(std::string newPath)

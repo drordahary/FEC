@@ -13,7 +13,7 @@ private:
 
     const unsigned char isFile = 0x8;
 
-    void moveFiles(std::string newPath);
+    void moveFile(std::string newPath, std::string filename);
 
 public:
     DirectoryReader(std::string directoryPath);

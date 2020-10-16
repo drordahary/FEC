@@ -28,7 +28,7 @@ int main()
 	si_other.sin_port = htons(PORT);
 	inet_pton(AF_INET, IP, &(si_other.sin_addr));
 
-	std::string filepath = "/home/magshimim/Documents/Files/Read.txt";
+	std::string filepath = "/home/magshimim/Files/Read.txt";
 	FileReader reader(filepath.c_str());
 
 	Serializer serializer = Serializer();
