@@ -13,6 +13,8 @@
 				"Storage.cpp",
 				"RedisHandler.cpp",
 				"DirectoryReader.cpp",
+				"TXSender.cpp",
+				"TXDataSender.cpp",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}",
 				"-lhiredis"

@@ -1,0 +1,96 @@
+#include "TXDataSender.h"
+
+TXDataSender::TXDataSender(std::string IP, unsigned int port) : TXSender(IP, port),
+                                                      directoryReader(TOSEND_PATH)
+{
+    /* THe constructor will first call the base class constructor
+       in order to initialize the socket, then the object
+       directoryReader and then the rest of the fields */
+
+    this->serializer = Serializer();
+    this->storage = Storage();
+
+    std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
+}
+
+TXDataSender::~TXDataSender()
+{
+    /* The destructor will close first the socket and the file
+       and then will automatically free the allocated memory */
+
+    this->fileReader.closeFile();
+    close(this->sc);
+}
+
+void TXDataSender::readFile(int amountToRead, int position)
+{
+    /* The function will call readFile 
+       and the field buffer will be changed */
+
+    this->fileReader.readFile(amountToRead, position, this->buffer);
+}
+
+void TXDataSender::sendBurst(std::string* packets)
+{
+    /* The function will send the
+	   storage packets one by one */
+
+    for (int i = 0; i < BURST && !(packets[i].empty()); i++)
+	{
+        sendPacket(packets[i].c_str());
+	}
+}
+
+void TXDataSender::preparePackets(int filesize)
+{
+    /* This function will calculate how much to read from
+	   the file and will prepare the packets to be sent */
+
+    int position = 0;
+	int amountToRead = 0;
+	int leftToRead = filesize;
+	int i = 0;
+
+	while (leftToRead > 0)
+	{
+		for (i = 0; i < BURST && leftToRead > 0; i++)
+		{
+			std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
+
+			if (leftToRead >= BUFFER_SIZE - HEX_LENGTH)
+			{
+				amountToRead = BUFFER_SIZE - HEX_LENGTH;
+			}
+
+			else
+			{
+				amountToRead = leftToRead;
+			}
+
+			readFile(amountToRead, position);
+			this->serializer.serializePacket(this->buffer);
+
+			this->storage.addToStorage(this->buffer);
+
+			position += amountToRead;
+			leftToRead -= amountToRead;
+		}
+
+		sendBurst(this->storage.getStorage());
+
+		if (leftToRead > 0)
+		{
+			this->storage.clearStorage();
+		}
+	}
+}
+
+void TXDataSender::startSending()
+{
+    /* The function will be called
+       from a main function */
+
+    this->fileReader.setFile("/home/magshimim/Documents/Files/Read.txt");
+
+    preparePackets(this->fileReader.getFileSize());
+}

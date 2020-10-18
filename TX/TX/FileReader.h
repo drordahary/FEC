@@ -12,8 +12,11 @@ private:
 	std::ifstream file;
 
 public:
-	FileReader(const char* filepath);
+	FileReader();
 	~FileReader();
+
+	void setFile(const char* filepath);
+
 	void readFile(int amountToRead, int position, char buffer[]);
 	void closeFile();
 	int getFileSize();

@@ -1,13 +1,27 @@
 #include "FileReader.h"
 
-FileReader::FileReader(const char* filepath) : file(filepath, std::ios::binary)
+FileReader::FileReader() : file(NULL)
 {
-	/* The constructor will use initializer
-	   list to open the file it if it exists */
+	/* This constructor is used for specific in class use 
+	   where the object cannot be initialized immediately */
+}
+
+FileReader::~FileReader()
+{
+	/* The destructor will delete automatically
+	   all the allocated memory of the object */
+}
+
+void FileReader::setFile(const char* filepath)
+{
+	/* The function will initialize ifstream
+	   and will set the file size */
+
+	this->file.open(filepath, std::ios::binary);
 
 	if (!this->file.is_open())
 	{
-		throw ("Error while trying to open the file. check if the file exists first");
+		throw("Error while trying to open the file. check if the file exists first");
 	}
 
 	this->file.seekg(0, std::ios::end);
@@ -15,12 +29,6 @@ FileReader::FileReader(const char* filepath) : file(filepath, std::ios::binary)
 	this->filesize = this->file.tellg();
 
 	this->file.seekg(0, std::ios::beg);
-}
-
-FileReader::~FileReader()
-{
-	/* The destructor will delete automatically
-	   all the allocated memory of the object */
 }
 
 void FileReader::readFile(int amountToRead, int position, char buffer[])
