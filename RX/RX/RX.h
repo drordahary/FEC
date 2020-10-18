@@ -1,5 +1,3 @@
-#pragma once
-
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <string.h>
@@ -15,7 +13,7 @@
 
 #pragma comment(lib,"ws2_32.lib")
 
-#define PORT 44664
+#define PORT 1410
 
 #define BUFFER_SIZE 512
 
