@@ -4,14 +4,20 @@
 #include <dirent.h>
 #include <string.h>
 
+#define IS_FILE 0x8
+
+typedef struct Directory
+{
+    std::string directoryPath;
+    struct dirent* entry;
+    DIR* dir;
+
+} Directory;
+
 class DirectoryReader
 {
 private:
-    std::string directoryPath;
-    struct dirent* entry;
-    DIR* directory;
-
-    const unsigned char isFile = 0x8;
+    Directory* directory;
 
     void moveFile(std::string newPath, std::string filename);
 

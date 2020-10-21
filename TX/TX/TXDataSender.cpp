@@ -18,7 +18,6 @@ TXDataSender::~TXDataSender()
     /* The destructor will close first the socket and the file
        and then will automatically free the allocated memory */
 
-    this->fileReader.closeFile();
     close(this->sc);
 }
 
@@ -85,12 +84,44 @@ void TXDataSender::preparePackets(int filesize)
 	}
 }
 
+void TXDataSender::prepareFiles()
+{
+	/* This function will iterate over a directory
+	   and will prepare each file to be sent */
+
+	std::string currentPath = "";
+
+	Directory* directory = new Directory();
+
+	directory->directoryPath = TOSEND_PATH;
+	directory->dir = opendir(directory->directoryPath.c_str());
+
+	if (directory->dir == NULL)
+	{
+		throw("Couldn't open directory");
+	}
+
+	while ((directory->entry = readdir(directory->dir)) != NULL)
+	{
+		if (directory->entry->d_type == IS_FILE)
+		{
+			currentPath = std::string(TOSEND_PATH) + "/" + directory->entry->d_name;
+
+			this->fileReader.setFile(currentPath.c_str());
+
+			preparePackets(this->fileReader.getFileSize());
+
+			this->fileReader.closeFile();
+		}
+	}
+	
+	delete directory;
+}
+
 void TXDataSender::startSending()
 {
     /* The function will be called
        from a main function */
 
-    this->fileReader.setFile("/home/magshimim/Documents/Files/Read.txt");
-
-    preparePackets(this->fileReader.getFileSize());
+    prepareFiles();
 }

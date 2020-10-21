@@ -17,6 +17,8 @@ private:
     void preparePackets(int filesize);
     void sendBurst(std::string* packets);
 
+    void prepareFiles();
+
 public:
     TXDataSender(std::string IP, unsigned int port);
     ~TXDataSender();

@@ -6,10 +6,12 @@ DirectoryReader::DirectoryReader(std::string directoryPath)
        and will initialize the DIR object 
        by opening the directory */
 
-    this->directoryPath = directoryPath;
-    this->directory = opendir(this->directoryPath.c_str());
+    this->directory = new Directory();
 
-    if (this->directory == NULL)
+    this->directory->directoryPath = directoryPath;
+    this->directory->dir = opendir(this->directory->directoryPath.c_str());
+
+    if (this->directory->dir == NULL)
     {
         throw("Couldn't open directory");
     }
@@ -19,6 +21,8 @@ DirectoryReader::~DirectoryReader()
 {
     /* The destructor will delete automatically
 	   all the allocated memory of the object */
+
+    delete this->directory;
 }
 
 void DirectoryReader::iterateDirectory(std::string newPath)
@@ -26,15 +30,15 @@ void DirectoryReader::iterateDirectory(std::string newPath)
     /* The function will iterate a directory 
        and will use the function moveFiles */
 
-    while ((this->entry = readdir(this->directory)) != NULL)
+    while ((this->directory->entry = readdir(this->directory->dir)) != NULL)
     {
-        if (this->entry->d_type == this->isFile)
+        if (this->directory->entry->d_type == IS_FILE)
         {
-            moveFile(newPath, this->entry->d_name);
+            moveFile(newPath, this->directory->entry->d_name);
         }
     }
     
-    closedir(this->directory);
+    closedir(this->directory->dir);
 }
 
 void DirectoryReader::moveFile(std::string newPath, std::string filename)
@@ -42,7 +46,7 @@ void DirectoryReader::moveFile(std::string newPath, std::string filename)
     /* The function will move the files from the 
        current opened directory to the new path */
 
-    std::string pathToFile = this->directoryPath + "/" + filename;
+    std::string pathToFile = this->directory->directoryPath + "/" + filename;
     newPath += "/" + filename;
 
     if (rename(pathToFile.c_str(), newPath.c_str()) != 0)
@@ -56,5 +60,5 @@ void DirectoryReader::setDirectoryPath(std::string newPath)
     /* THe function will assign the 
        current path to a new path */
 
-    this->directoryPath = newPath;
+    this->directory->directoryPath = newPath;
 }
