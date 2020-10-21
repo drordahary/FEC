@@ -3,7 +3,7 @@
 TXDataSender::TXDataSender(std::string IP, unsigned int port) : TXSender(IP, port),
                                                       directoryReader(TOSEND_PATH)
 {
-    /* THe constructor will first call the base class constructor
+    /* The constructor will first call the base class constructor
        in order to initialize the socket, then the object
        directoryReader and then the rest of the fields */
 
