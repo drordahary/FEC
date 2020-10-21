@@ -1,17 +1,29 @@
 #include "FileBuilder.h"
 
-FileBuilder::FileBuilder(const char* filename) : file(filename, std::ios_base::app)
+FileBuilder::FileBuilder() : file(NULL)
 {
-	/* The constructor will use initializer list
-	   to create the file or open it if it exists
-	   and also using the append mode 
-	   to prevent overwriting */
+	/* This constructor is used for specific in
+	   class use where the object cannot 
+	   be initialized immediately */
 }
 
 FileBuilder::~FileBuilder()
 {
 	/* The destructor will delete automatically
 	   all the allocated memory of the object */
+}
+
+void FileBuilder::setFile(std::string filename)
+{
+	/* The function will initialize ofstream.
+	   If the file doesn't exists it'll create one */
+
+	this->file.open(filename.c_str(), std::ios_base::app);
+
+	if (!this->file.is_open())
+	{
+		throw("Error while trying to opening / creating the file");
+	}
 }
 
 void FileBuilder::writeToFile(char buffer[])
