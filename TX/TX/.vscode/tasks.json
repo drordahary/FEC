@@ -15,6 +15,7 @@
 				"DirectoryReader.cpp",
 				"TXSender.cpp",
 				"TXDataSender.cpp",
+				"TXMetaDataSender.cpp",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}",
 				"-lhiredis"

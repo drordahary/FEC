@@ -19,6 +19,6 @@ public:
     ~RedisHandler();
 
     void connectToRedis();
-    void addToRedis(std::string fileMetaData[]);
+    int addToRedis(std::string fileMetaData[]);
     int getLastFileID();
 };

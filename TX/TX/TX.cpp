@@ -2,8 +2,11 @@
 
 int main()
 {
-	TXDataSender dataSender(IP, DATA_PORT);
-	dataSender.startSending();
+	TXMetaDataSender metaDataSender(IP, META_DATA_PORT);
+	metaDataSender.sendMetaData();
+
+	//TXDataSender dataSender(IP, DATA_PORT);
+	//dataSender.startSending();
 
 	return 0;
 }

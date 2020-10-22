@@ -37,14 +37,15 @@ void RedisHandler::connectToRedis()
     freeReplyObject(this->reply);
 }
 
-void RedisHandler::addToRedis(std::string fileMetaData[])
+int RedisHandler::addToRedis(std::string fileMetaData[])
 {
     /* The function will receive a string which
        is the command and will execute it
        The file meta data consist of:
-       file name and size.
+       ID, file name and size.
        The function will also increament
-       the currentAmount by 1 for the next file */
+       the currentAmount by 1 for the next file
+       return: current file's ID */
 
     int currentFileID = getLastFileID() + 1;
     std::string command = formatCommand(fileMetaData, currentFileID);
@@ -58,6 +59,8 @@ void RedisHandler::addToRedis(std::string fileMetaData[])
     checkExecution();
 
     freeReplyObject(this->reply);
+    
+    return currentFileID;
 }
 
 int RedisHandler::getLastFileID()

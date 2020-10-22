@@ -24,9 +24,11 @@ protected:
     struct sockaddr_in si_other;
     int slen;
 
+    char buffer[BUFFER_SIZE + 1];
+
 public:
     TXSender(std::string IP, unsigned int port);
     ~TXSender();
 
-    void sendPacket(const char buffer[]);
+    void sendPacket();
 };

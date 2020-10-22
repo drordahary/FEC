@@ -10,8 +10,6 @@ private:
     Storage storage;
     DirectoryReader directoryReader;
 
-    char buffer[BUFFER_SIZE + 1];
-
     void readFile(int amountToRead, int position);
 
     void preparePackets(int filesize);

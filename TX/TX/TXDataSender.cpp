@@ -9,8 +9,6 @@ TXDataSender::TXDataSender(std::string IP, unsigned int port) : TXSender(IP, por
 
     this->serializer = Serializer();
     this->storage = Storage();
-
-    std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
 }
 
 TXDataSender::~TXDataSender()
@@ -36,7 +34,8 @@ void TXDataSender::sendBurst(std::string* packets)
 
     for (int i = 0; i < BURST && !(packets[i].empty()); i++)
 	{
-        sendPacket(packets[i].c_str());
+		std::copy(packets[i].c_str(), packets[i].c_str() + BUFFER_SIZE + 1, this->buffer);
+        sendPacket();
 	}
 }
 
@@ -115,6 +114,7 @@ void TXDataSender::prepareFiles()
 		}
 	}
 	
+	closedir(directory->dir);
 	delete directory;
 }
 

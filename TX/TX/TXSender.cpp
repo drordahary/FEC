@@ -5,6 +5,8 @@ TXSender::TXSender(std::string IP, unsigned int port)
     /* THe constructor will initialize the socket
        given IP and Port */
 
+	std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
+
     this->slen = sizeof(this->si_other);
 
 	if ((this->sc = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
@@ -24,13 +26,15 @@ TXSender::~TXSender()
 	   all the allocated memory of the object */
 }
 
-void TXSender::sendPacket(const char buffer[])
+void TXSender::sendPacket()
 {
     /* This function simply, just receive 
        buffer as a parameter and send it */
        
-    if (sendto(this->sc, buffer, BUFFER_SIZE + 1, 0, (struct sockaddr*) &(this->si_other), sizeof(this->si_other)) == -1)
+    if (sendto(this->sc, this->buffer, BUFFER_SIZE + 1, 0, (struct sockaddr*) &(this->si_other), sizeof(this->si_other)) == -1)
 	{
 		throw ("Failed to send packet");
 	}
+
+	std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
 }
