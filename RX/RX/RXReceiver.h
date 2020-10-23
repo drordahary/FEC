@@ -22,6 +22,9 @@ protected:
     struct sockaddr_in server, cliaddr;
     socklen_t slen;
     int recv_len;
+    char buffer[BUFFER_SIZE + 1];
+
+    void receivePacket();
 
 public:
     RXReceiver(unsigned int port);

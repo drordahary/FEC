@@ -20,7 +20,7 @@ RXDataReceiver::~RXDataReceiver()
     close(sc);
 }
 
-void RXDataReceiver::receivePackets()
+void RXDataReceiver::receiveData()
 {
     /* This function will listen to incoming
 	   UDP packets and will write the 
@@ -34,14 +34,11 @@ void RXDataReceiver::receivePackets()
 	{
 		std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
 
-		if (recv_len = recvfrom(sc, this->buffer, BUFFER_SIZE + 1, 0, (struct sockaddr*) &cliaddr, &slen) < 0)
-		{
-			std::cout << "Failed to receive" << std::endl;
-			exit(EXIT_FAILURE);
-		}
+		receivePacket();
 
 		packetNumber = deserializer.deserializePacket(this->buffer);
 		
 		this->fileBuilder.writeToFile(this->buffer);
+		std::cout << this->buffer << std::endl;
 	}
 }

@@ -12,8 +12,11 @@
 				"FileBuilder.cpp",
 				"RXReceiver.cpp",
 				"RXDataReceiver.cpp",
+				"RedisHandler.cpp",
+				"RXMetaDataReceiver.cpp",
 				"-o",
-				"${fileDirname}/${fileBasenameNoExtension}"
+				"${fileDirname}/${fileBasenameNoExtension}",
+				"-lhiredis"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"

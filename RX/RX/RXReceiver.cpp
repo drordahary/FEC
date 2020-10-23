@@ -31,3 +31,15 @@ RXReceiver::~RXReceiver()
     /* The destructor will close first the socket and the file
        and then will automatically free the allocated memory */
 }
+
+void RXReceiver::receivePacket()
+{
+    /* The function will only receive
+       one single packet each time */
+
+    if (recv_len = recvfrom(sc, this->buffer, BUFFER_SIZE + 1, 0, (struct sockaddr*) &cliaddr, &slen) < 0)
+	{
+		std::cout << "Failed to receive" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+}
