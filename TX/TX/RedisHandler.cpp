@@ -29,7 +29,7 @@ void RedisHandler::connectToRedis()
         throw("Couldn't connect to redis (Check if the server is up)");
     }
 
-    std::string command = "select " + this->databaseID;
+    std::string command = "select " + std::to_string(this->databaseID);
 
     this->reply = (redisReply*)redisCommand(this->context, command.c_str());
     checkExecution();
