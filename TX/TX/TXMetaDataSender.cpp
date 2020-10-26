@@ -1,14 +1,15 @@
 #include "TXMetaDataSender.h"
 
 TXMetaDataSender::TXMetaDataSender(std::string IP, unsigned int port) : TXSender(IP, port),
-                                                              directoryReader(FILES_PATH),
-                                                              redisHandler(0)
+                                                               directoryReader(FILES_PATH),
+                                                               redisHandler(0)
 {
     /* The constructor will first call the base class constructor
        in order to initialize the socket, then the object
        directoryReader and redisHandler and then the rest of the fields */
 
     this->metaData = new FileMetaData();
+    TXSender::lastIDUpdated = this->redisHandler.getLastFileID() + 1;
 }
 
 TXMetaDataSender::~TXMetaDataSender()
@@ -61,6 +62,8 @@ void TXMetaDataSender::sendMetaData()
 
     closedir(directory->dir);
     delete directory;
+
+    this->redisHandler.closeConnection();
 }
 
 int TXMetaDataSender::saveToRedis()

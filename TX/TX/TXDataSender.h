@@ -8,11 +8,12 @@ private:
     FileReader fileReader;
     Serializer serializer;
     Storage storage;
+    RedisHandler redisHandler;
     DirectoryReader directoryReader;
 
     void readFile(int amountToRead, int position);
 
-    void preparePackets(int filesize);
+    void preparePackets(int filesize, int fileID);
     void sendBurst(std::string* packets);
 
     void prepareFiles();

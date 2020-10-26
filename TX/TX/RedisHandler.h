@@ -21,4 +21,5 @@ public:
     void connectToRedis();
     int addToRedis(std::string fileMetaData[]);
     int getLastFileID();
+    void closeConnection();
 };

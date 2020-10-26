@@ -1,5 +1,7 @@
 #include "TXSender.h"
 
+int TXSender::lastIDUpdated = 0;
+
 TXSender::TXSender(std::string IP, unsigned int port)
 {
     /* THe constructor will initialize the socket

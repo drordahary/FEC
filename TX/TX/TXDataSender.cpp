@@ -1,7 +1,8 @@
 #include "TXDataSender.h"
 
 TXDataSender::TXDataSender(std::string IP, unsigned int port) : TXSender(IP, port),
-                                                      directoryReader(TOSEND_PATH)
+                                                      directoryReader(TOSEND_PATH),
+													  redisHandler(0)
 {
     /* The constructor will first call the base class constructor
        in order to initialize the socket, then the object
@@ -39,7 +40,7 @@ void TXDataSender::sendBurst(std::string* packets)
 	}
 }
 
-void TXDataSender::preparePackets(int filesize)
+void TXDataSender::preparePackets(int filesize, int fileID)
 {
     /* This function will calculate how much to read from
 	   the file and will prepare the packets to be sent */
@@ -55,9 +56,9 @@ void TXDataSender::preparePackets(int filesize)
 		{
 			std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
 
-			if (leftToRead >= BUFFER_SIZE - HEX_LENGTH)
+			if (leftToRead >= BUFFER_SIZE - (HEX_LENGTH * 2))
 			{
-				amountToRead = BUFFER_SIZE - HEX_LENGTH;
+				amountToRead = BUFFER_SIZE - (HEX_LENGTH * 2);
 			}
 
 			else
@@ -66,7 +67,7 @@ void TXDataSender::preparePackets(int filesize)
 			}
 
 			readFile(amountToRead, position);
-			this->serializer.serializePacket(this->buffer);
+			this->serializer.serializePacket(this->buffer, fileID);
 
 			this->storage.addToStorage(this->buffer);
 
@@ -89,6 +90,7 @@ void TXDataSender::prepareFiles()
 	   and will prepare each file to be sent */
 
 	std::string currentPath = "";
+	int currentFileID = this->lastIDUpdated;
 
 	Directory* directory = new Directory();
 
@@ -108,7 +110,8 @@ void TXDataSender::prepareFiles()
 
 			this->fileReader.setFile(currentPath.c_str());
 
-			preparePackets(this->fileReader.getFileSize());
+			preparePackets(this->fileReader.getFileSize(), currentFileID);
+			currentFileID++;
 
 			this->fileReader.closeFile();
 		}

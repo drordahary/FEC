@@ -18,6 +18,6 @@ public:
 	Serializer();
 	~Serializer();
 
-	void serializePacket(char buffer[]);
-	std::string intToHex();
+	void serializePacket(char buffer[], int fileID);
+	std::string intToHex(int ID);
 };

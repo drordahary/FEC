@@ -25,10 +25,13 @@ protected:
     int slen;
 
     char buffer[BUFFER_SIZE + 1];
+    
 
 public:
     TXSender(std::string IP, unsigned int port);
     ~TXSender();
 
     void sendPacket();
+
+    static int lastIDUpdated;
 };

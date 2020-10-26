@@ -11,10 +11,8 @@ RedisHandler::RedisHandler(int databaseID)
 
 RedisHandler::~RedisHandler()
 {
-    /* THe destructor will free the context object manually
-       and all the other allocated memory automatically */
-
-    redisFree(this->context);
+    /* The destructor will free all the
+       allocated memory automatically */
 }
 
 void RedisHandler::connectToRedis()
@@ -102,4 +100,12 @@ void RedisHandler::checkExecution()
     {
         throw("Couldn't execute command");
     }
+}
+
+void RedisHandler::closeConnection()
+{
+    /* The function will close the 
+       socket connected to Redis */
+
+    redisFree(this->context);
 }
