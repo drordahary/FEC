@@ -14,4 +14,6 @@ public:
     ~RXDataReceiver();
 
     void receiveData();
+
+    void startReceiving();
 };

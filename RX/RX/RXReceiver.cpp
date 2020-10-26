@@ -5,21 +5,24 @@ RXReceiver::RXReceiver(unsigned int port)
     /* The constructor will use the the given
        port to initialize the socket */
 
-    if ((this->sc = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+    this->sock = new Socket();
+    this->sockfd = this->sock->sc;
+
+    if ((this->sock->sc = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 	{ 
         perror("Socket creation failed");
         exit(EXIT_FAILURE); 
     } 
 
-	memset(&(this->server), 0, sizeof((this->server)));
-    memset(&(this->cliaddr), 0, sizeof(this->cliaddr));
+	memset(&(this->sock->server), 0, sizeof((this->sock->server)));
+    memset(&(this->sock->cliaddr), 0, sizeof(this->sock->cliaddr));
 
-	(this->server).sin_family = AF_INET;
-	(this->server).sin_addr.s_addr = INADDR_ANY;
-	(this->server).sin_port = htons(port);
+	(this->sock->server).sin_family = AF_INET;
+	(this->sock->server).sin_addr.s_addr = INADDR_ANY;
+	(this->sock->server).sin_port = htons(port);
 
 
-	if (bind(this->sc, (const struct sockaddr *)&(this->server), sizeof(this->server)) < 0)
+	if (bind(this->sock->sc, (const struct sockaddr *)&(this->sock->server), sizeof(this->sock->server)) < 0)
 	{
 		perror("Bind failed");
         exit(EXIT_FAILURE);
@@ -30,16 +33,19 @@ RXReceiver::~RXReceiver()
 {
     /* The destructor will close first the socket and the file
        and then will automatically free the allocated memory */
+
+    close(this->sock->sc);
+    delete this->sock;
 }
 
 void RXReceiver::receivePacket()
 {
     /* The function will only receive
        one single packet each time */
-
-    if (recv_len = recvfrom(sc, this->buffer, BUFFER_SIZE + 1, 0, (struct sockaddr*) &cliaddr, &slen) < 0)
-	{
-		std::cout << "Failed to receive" << std::endl;
-		exit(EXIT_FAILURE);
-	}
+    
+    if (this->sock->recv_len = recvfrom(this->sock->sc, this->buffer, sizeof(this->buffer), 0, (struct sockaddr*) &(this->sock->cliaddr), &(this->sock->slen)) < 0)
+    {
+        std::cout << "Failed to receive" << std::endl;
+        exit(EXIT_FAILURE);
+    }
 }

@@ -15,7 +15,6 @@ RXMetaDataReceiver::~RXMetaDataReceiver()
        and the rest allocated memory automatically */
 
     delete this->fileMetaData;
-    close(this->sc);
 }
 
 void RXMetaDataReceiver::receiveMetaData()
@@ -25,7 +24,7 @@ void RXMetaDataReceiver::receiveMetaData()
 
     while (true)
     {
-        std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
+        std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), 0);
 
         receivePacket();
 

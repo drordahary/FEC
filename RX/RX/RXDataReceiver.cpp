@@ -17,7 +17,6 @@ RXDataReceiver::~RXDataReceiver()
        and then will automatically free the allocated memory */
 
     this->fileBuilder.closeFile();
-    close(sc);
 }
 
 void RXDataReceiver::receiveData()
@@ -39,6 +38,14 @@ void RXDataReceiver::receiveData()
 		packetNumber = deserializer.deserializePacket(this->buffer);
 		
 		this->fileBuilder.writeToFile(this->buffer);
-		std::cout << this->buffer << std::endl;
 	}
+}
+
+void RXDataReceiver::startReceiving()
+{
+    /* This function will start a thread
+       on the receiving function */
+
+    std::thread receiveThread(&RXDataReceiver::receiveData, this);
+    receiveThread.join();
 }

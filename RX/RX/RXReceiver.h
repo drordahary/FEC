@@ -9,19 +9,28 @@
 #include <arpa/inet.h> 
 #include <netinet/in.h> 
 #include <unistd.h>
+#include <thread>
+#include <sys/select.h>
 
 #include "FileBuilder.h"
 #include "Deserializer.h"
 
 #define FILES_PATH "./Files/Test.txt"
 
-class RXReceiver
+typedef struct Socket
 {
-protected:
     int sc;
     struct sockaddr_in server, cliaddr;
     socklen_t slen;
     int recv_len;
+
+} Socket;
+
+class RXReceiver
+{
+protected:
+    Socket* sock;
+    int sockfd;
     char buffer[BUFFER_SIZE + 1];
 
     void receivePacket();

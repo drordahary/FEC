@@ -5,9 +5,16 @@ int main()
 	/* This main function will initialize connection
 	   and will try to create a socket */
 
-	RXMetaDataReceiver metaDataReceiver(META_DATA_PORT);
-	metaDataReceiver.receiveMetaData();
+	RXMetaDataReceiver* metaDataReceiver = new RXMetaDataReceiver(META_DATA_PORT);
+	RXDataReceiver* dataReceiver = new RXDataReceiver(DATA_PORT);
 
-	//RXDataReceiver dataReceiver(DATA_PORT);
-	//dataReceiver.receiveData();
+	std::thread metaDataThread(&RXMetaDataReceiver::receiveMetaData, metaDataReceiver);
+	
+	dataReceiver->startReceiving();
+	metaDataThread.join();
+
+	delete metaDataReceiver;
+	delete dataReceiver;
+
+	return 0;
 }
