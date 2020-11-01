@@ -15,7 +15,7 @@ public:
 	FileReader();
 	~FileReader();
 
-	void setFile(const char* filepath);
+	void setFile(const char *filepath);
 
 	void readFile(int amountToRead, int position, char buffer[]);
 	void closeFile();

@@ -9,15 +9,15 @@
 typedef struct Directory
 {
     std::string directoryPath;
-    struct dirent* entry;
-    DIR* dir;
+    struct dirent *entry;
+    DIR *dir;
 
 } Directory;
 
 class DirectoryReader
 {
 private:
-    Directory* directory;
+    Directory *directory;
 
     void moveFile(std::string newPath, std::string filename);
 

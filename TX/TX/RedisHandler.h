@@ -7,8 +7,8 @@
 class RedisHandler
 {
 private:
-    redisContext* context;
-    redisReply* reply;
+    redisContext *context;
+    redisReply *reply;
     int databaseID;
 
     void checkExecution();

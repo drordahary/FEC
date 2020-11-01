@@ -6,7 +6,7 @@ Serializer::Serializer()
 	   packetCount which used for numbering the packets */
 
 	this->packetCount = 0;
-    std::fill(this->serializedBuffer, this->serializedBuffer + (BUFFER_SIZE + 1), '\0');
+	std::fill(this->serializedBuffer, this->serializedBuffer + (BUFFER_SIZE + 1), '\0');
 }
 
 Serializer::~Serializer()
@@ -26,9 +26,9 @@ void Serializer::serializePacket(char buffer[], int fileID)
 	std::string hexadecimalP = intToHex(this->packetCount);
 	std::string hexadecimalF = intToHex(fileID);
 
-    std::copy(hexadecimalF.c_str(), hexadecimalF.c_str() + HEX_LENGTH, this->serializedBuffer);
+	std::copy(hexadecimalF.c_str(), hexadecimalF.c_str() + HEX_LENGTH, this->serializedBuffer);
 	strncat(this->serializedBuffer, hexadecimalP.c_str(), HEX_LENGTH);
-	
+
 	strncat(this->serializedBuffer, buffer, BUFFER_SIZE + 1 - (HEX_LENGTH * 2));
 	std::copy(this->serializedBuffer, this->serializedBuffer + BUFFER_SIZE + 1, buffer);
 

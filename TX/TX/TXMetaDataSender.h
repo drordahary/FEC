@@ -16,7 +16,7 @@ private:
     DirectoryReader directoryReader;
     FileReader fileReader;
     RedisHandler redisHandler;
-    FileMetaData* metaData;
+    FileMetaData *metaData;
 
     int saveToRedis();
     void bufferBuilder();

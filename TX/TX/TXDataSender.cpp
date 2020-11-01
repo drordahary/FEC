@@ -1,50 +1,50 @@
 #include "TXDataSender.h"
 
 TXDataSender::TXDataSender(std::string IP, unsigned int port) : TXSender(IP, port),
-                                                      directoryReader(TOSEND_PATH)
+																directoryReader(TOSEND_PATH)
 {
-    /* The constructor will first call the base class constructor
+	/* The constructor will first call the base class constructor
        in order to initialize the socket, then the object
        directoryReader and then the rest of the fields */
 
-    this->serializer = Serializer();
-    this->storage = Storage();
+	this->serializer = Serializer();
+	this->storage = Storage();
 }
 
 TXDataSender::~TXDataSender()
 {
-    /* The destructor will close first the socket and the file
+	/* The destructor will close first the socket and the file
        and then will automatically free the allocated memory */
 
-    close(this->sc);
+	close(this->sc);
 }
 
 void TXDataSender::readFile(int amountToRead, int position)
 {
-    /* The function will call readFile 
+	/* The function will call readFile 
        and the field buffer will be changed */
 
-    this->fileReader.readFile(amountToRead, position, this->buffer);
+	this->fileReader.readFile(amountToRead, position, this->buffer);
 }
 
-void TXDataSender::sendBurst(std::string* packets)
+void TXDataSender::sendBurst(std::string *packets)
 {
-    /* The function will send the
+	/* The function will send the
 	   storage packets one by one */
 
-    for (int i = 0; i < BURST && !(packets[i].empty()); i++)
+	for (int i = 0; i < BURST && !(packets[i].empty()); i++)
 	{
 		std::copy(packets[i].c_str(), packets[i].c_str() + BUFFER_SIZE + 1, this->buffer);
-        sendPacket();
+		sendPacket();
 	}
 }
 
 void TXDataSender::preparePackets(int filesize, int fileID)
 {
-    /* This function will calculate how much to read from
+	/* This function will calculate how much to read from
 	   the file and will prepare the packets to be sent */
 
-    int position = 0;
+	int position = 0;
 	int amountToRead = 0;
 	int leftToRead = filesize;
 	int i = 0;
@@ -96,7 +96,7 @@ void TXDataSender::prepareFiles()
 	std::string currentPath = "";
 	int currentFileID = this->lastIDUpdated;
 
-	Directory* directory = new Directory();
+	Directory *directory = new Directory();
 
 	directory->directoryPath = TOSEND_PATH;
 	directory->dir = opendir(directory->directoryPath.c_str());
@@ -120,15 +120,15 @@ void TXDataSender::prepareFiles()
 			this->fileReader.closeFile();
 		}
 	}
-	
+
 	closedir(directory->dir);
 	delete directory;
 }
 
 void TXDataSender::startSending()
 {
-    /* The function will be called
+	/* The function will be called
        from a main function */
 
-    prepareFiles();
+	prepareFiles();
 }

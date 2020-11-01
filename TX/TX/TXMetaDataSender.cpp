@@ -1,8 +1,8 @@
 #include "TXMetaDataSender.h"
 
 TXMetaDataSender::TXMetaDataSender(std::string IP, unsigned int port) : TXSender(IP, port),
-                                                               directoryReader(FILES_PATH),
-                                                               redisHandler(0)
+                                                                        directoryReader(FILES_PATH),
+                                                                        redisHandler(0)
 {
     /* The constructor will first call the base class constructor
        in order to initialize the socket, then the object
@@ -30,15 +30,15 @@ void TXMetaDataSender::sendMetaData()
     std::string currentPath = "";
     std::string parameters[2];
 
-    Directory* directory = new Directory();
+    Directory *directory = new Directory();
 
-	directory->directoryPath = FILES_PATH;
-	directory->dir = opendir(directory->directoryPath.c_str());
+    directory->directoryPath = FILES_PATH;
+    directory->dir = opendir(directory->directoryPath.c_str());
 
-	if (directory->dir == NULL)
-	{
-		throw("Couldn't open directory");
-	}
+    if (directory->dir == NULL)
+    {
+        throw("Couldn't open directory");
+    }
 
     while ((directory->entry = readdir(directory->dir)) != NULL)
     {
@@ -78,7 +78,7 @@ int TXMetaDataSender::saveToRedis()
     parameters[1] = std::to_string(this->metaData->size);
 
     int ID = this->redisHandler.addToRedis(parameters);
-    
+
     return ID;
 }
 
@@ -94,7 +94,7 @@ void TXMetaDataSender::bufferBuilder()
     metaDataBuffer += this->metaData->filename + ",";
     metaDataBuffer += std::to_string(this->metaData->size);
 
-    const char* currentBuffer = metaDataBuffer.c_str();
+    const char *currentBuffer = metaDataBuffer.c_str();
 
     std::copy(currentBuffer, currentBuffer + BUFFER_SIZE + 1, this->buffer);
 }

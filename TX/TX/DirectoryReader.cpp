@@ -37,7 +37,7 @@ void DirectoryReader::iterateDirectory(std::string newPath)
             moveFile(newPath, this->directory->entry->d_name);
         }
     }
-    
+
     closedir(this->directory->dir);
 }
 

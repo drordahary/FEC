@@ -1,9 +1,9 @@
 #pragma once
 
-#include <unistd.h> 
-#include <stdio.h> 
-#include <sys/socket.h> 
-#include <stdlib.h> 
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/socket.h>
+#include <stdlib.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
@@ -25,7 +25,6 @@ protected:
     int slen;
 
     char buffer[BUFFER_SIZE + 1];
-    
 
 public:
     TXSender(std::string IP, unsigned int port);

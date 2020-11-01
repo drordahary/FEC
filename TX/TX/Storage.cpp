@@ -37,10 +37,9 @@ void Storage::clearStorage()
 	}
 
 	this->currentAdded = 0;
-	
 }
 
-std::string* Storage::getStorage()
+std::string *Storage::getStorage()
 {
 	/* The function will return 
 	   the packets in the storage */

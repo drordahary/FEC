@@ -13,13 +13,13 @@ private:
     void readFile(int amountToRead, int position);
 
     void preparePackets(int filesize, int fileID);
-    void sendBurst(std::string* packets);
+    void sendBurst(std::string *packets);
 
     void prepareFiles();
 
 public:
     TXDataSender(std::string IP, unsigned int port);
     ~TXDataSender();
-    
+
     void startSending();
 };

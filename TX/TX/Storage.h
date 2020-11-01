@@ -9,7 +9,7 @@
 class Storage
 {
 private:
-	std::string* packets;
+	std::string *packets;
 	int currentAdded;
 
 public:
@@ -19,5 +19,5 @@ public:
 	void addToStorage(char buffer[]);
 	void clearStorage();
 
-	std::string* getStorage();
+	std::string *getStorage();
 };

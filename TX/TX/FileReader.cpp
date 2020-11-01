@@ -12,7 +12,7 @@ FileReader::~FileReader()
 	   all the allocated memory of the object */
 }
 
-void FileReader::setFile(const char* filepath)
+void FileReader::setFile(const char *filepath)
 {
 	/* The function will initialize ifstream
 	   and will set the file size */
