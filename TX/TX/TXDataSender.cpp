@@ -1,8 +1,7 @@
 #include "TXDataSender.h"
 
 TXDataSender::TXDataSender(std::string IP, unsigned int port) : TXSender(IP, port),
-                                                      directoryReader(TOSEND_PATH),
-													  redisHandler(0)
+                                                      directoryReader(TOSEND_PATH)
 {
     /* The constructor will first call the base class constructor
        in order to initialize the socket, then the object
@@ -81,6 +80,11 @@ void TXDataSender::preparePackets(int filesize, int fileID)
 		{
 			this->storage.clearStorage();
 		}
+	}
+
+	if (filesize < (BUFFER_SIZE - (HEX_LENGTH * 2)))
+	{
+		this->storage.clearStorage();
 	}
 }
 
