@@ -10,12 +10,17 @@
 class Deserializer
 {
 private:
-	char deserializedBuffer[BUFFER_SIZE - HEX_LENGTH + 1];
+	char deserializedBuffer[BUFFER_SIZE - (HEX_LENGTH * 2) + 1];
+	int fileID;
+	int packetID;
 
 public:
 	Deserializer();
 	~Deserializer();
 
-	int deserializePacket(char buffer[]);
+	void deserializePacket(char buffer[]);
 	int hexToInt(std::string hexadecimal);
+
+	int getFileID();
+	int getPacketID();
 };

@@ -14,8 +14,9 @@
 
 #include "FileBuilder.h"
 #include "Deserializer.h"
+#include "RedisHandler.h"
 
-#define FILES_PATH "./Files/Test.txt"
+#define FILES_PATH "./Files/"
 
 typedef struct Socket
 {

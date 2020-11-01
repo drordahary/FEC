@@ -81,6 +81,23 @@ int RedisHandler::getLastFileID()
     return lastFileID;
 }
 
+std::string RedisHandler::getFileName(int fileID)
+{
+    /* The function will receive a file ID to
+       search for and will return the file name */
+
+    std::string command = "hmget fileID:" + std::to_string(fileID) + " fileName";
+
+    this->reply = (redisReply*)redisCommand(this->context, command.c_str());
+    checkExecution();
+
+    std::string fileName = this->reply->element[0]->str;
+
+    freeReplyObject(this->reply);
+
+    return fileName;
+}
+
 std::string RedisHandler::formatCommand(std::string fileMetaData[], int fileID)
 {
     /* The function will format the command to be executable.
@@ -102,4 +119,12 @@ void RedisHandler::checkExecution()
     {
         throw("Couldn't execute command");
     }
+}
+
+void RedisHandler::closeConnection()
+{
+    /* The function will close the 
+       socket connected to Redis */
+
+    redisFree(this->context);
 }

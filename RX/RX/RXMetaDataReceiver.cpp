@@ -14,6 +14,7 @@ RXMetaDataReceiver::~RXMetaDataReceiver()
     /* The destructor will close the socket manually
        and the rest allocated memory automatically */
 
+    this->redisHandler.closeConnection();
     delete this->fileMetaData;
 }
 

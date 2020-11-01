@@ -12,23 +12,23 @@ Deserializer::~Deserializer()
 	   all the allocated memory of the object */
 }
 
-int Deserializer::deserializePacket(char buffer[])
+void Deserializer::deserializePacket(char buffer[])
 {
 	/* This function will deserialize the packet to 
 	   two parts: the packet number and the actual data */
 
-	std::string hexadecimal(buffer, buffer + HEX_LENGTH);
+	std::string fileHexadecimal(buffer, buffer + HEX_LENGTH);
+	std::string packetHexadecimal(buffer + HEX_LENGTH, buffer + (HEX_LENGTH * 2));
 
-	int packetNumber = hexToInt(hexadecimal);
+	this->fileID = hexToInt(fileHexadecimal);
+	this->packetID = hexToInt(packetHexadecimal);
 
-	std::copy(buffer + HEX_LENGTH, buffer + BUFFER_SIZE + 1, this->deserializedBuffer);
+	std::copy(buffer + (HEX_LENGTH * 2), buffer + BUFFER_SIZE + 1, this->deserializedBuffer);
 
 	std::fill(buffer, buffer + BUFFER_SIZE + 1, '\0');
-	std::copy(this->deserializedBuffer, this->deserializedBuffer + BUFFER_SIZE - HEX_LENGTH + 1, buffer);
+	std::copy(this->deserializedBuffer, this->deserializedBuffer + BUFFER_SIZE - (HEX_LENGTH * 2) + 1, buffer);
 
-	std::fill(this->deserializedBuffer, this->deserializedBuffer + BUFFER_SIZE - HEX_LENGTH + 1, '\0');
-
-	return packetNumber;
+	std::fill(this->deserializedBuffer, this->deserializedBuffer + BUFFER_SIZE - (HEX_LENGTH * 2) + 1, '\0');
 }
 
 int Deserializer::hexToInt(std::string hexadecimal)
@@ -37,4 +37,18 @@ int Deserializer::hexToInt(std::string hexadecimal)
 	   to a normal decimal value and will return it */
 
 	return std::stoul(hexadecimal, nullptr, BASE_16);
+}
+
+int Deserializer::getFileID()
+{
+	/* The function will return the file ID */
+
+	return this->fileID;
+}
+
+int Deserializer::getPacketID()
+{
+	/* The function will return the packet ID */
+
+	return this->packetID;
 }

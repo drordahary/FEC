@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RXReceiver.h"
-#include "RedisHandler.h"
 
 typedef struct FileMetaData
 {
