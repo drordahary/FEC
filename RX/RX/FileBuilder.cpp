@@ -30,7 +30,7 @@ void FileBuilder::writeToFile(char buffer[])
 {
 	/* The function will receive a buffer as a 
 	   parameter and will append it to the file */
-	   
+
 	if (this->file.is_open())
 	{
 		this->file << buffer;

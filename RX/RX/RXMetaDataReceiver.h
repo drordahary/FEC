@@ -14,7 +14,7 @@ class RXMetaDataReceiver : public RXReceiver
 {
 private:
     std::string splittedData[3];
-    FileMetaData* fileMetaData;
+    FileMetaData *fileMetaData;
 
     RedisHandler redisHandler;
     void saveToRedis();

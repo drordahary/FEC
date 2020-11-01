@@ -37,13 +37,13 @@ void RXDataReceiver::receiveData()
 
     std::string fileName;
 
-	while (true)
-	{
-		std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
+    while (true)
+    {
+        std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
 
-		receivePacket();
+        receivePacket();
 
-		deserializer.deserializePacket(this->buffer);
+        deserializer.deserializePacket(this->buffer);
 
         fileID = deserializer.getFileID();
         packetID = deserializer.getPacketID();
@@ -56,7 +56,7 @@ void RXDataReceiver::receiveData()
             currentFileID = fileID;
         }
 
-        else if(currentFileID != fileID)
+        else if (currentFileID != fileID)
         {
             fileName = this->redisHandler.getFileName(fileID);
 
@@ -65,9 +65,9 @@ void RXDataReceiver::receiveData()
 
             currentFileID = fileID;
         }
-        
-		this->fileBuilder.writeToFile(this->buffer);        
-	}
+
+        this->fileBuilder.writeToFile(this->buffer);
+    }
 }
 
 void RXDataReceiver::startReceiving()

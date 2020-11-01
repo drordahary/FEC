@@ -31,7 +31,7 @@ void RedisHandler::connectToRedis()
 
     std::string command = "select " + std::to_string(this->databaseID);
 
-    this->reply = (redisReply*)redisCommand(this->context, command.c_str());
+    this->reply = (redisReply *)redisCommand(this->context, command.c_str());
     checkExecution();
 
     freeReplyObject(this->reply);
@@ -50,16 +50,16 @@ int RedisHandler::addToRedis(std::string fileMetaData[])
     int currentFileID = getLastFileID() + 1;
     std::string command = formatCommand(fileMetaData, currentFileID);
 
-    this->reply = (redisReply*)redisCommand(this->context, command.c_str());
+    this->reply = (redisReply *)redisCommand(this->context, command.c_str());
     checkExecution();
 
     freeReplyObject(this->reply);
 
-    this->reply = (redisReply*)redisCommand(this->context, "incr currentAmount");
+    this->reply = (redisReply *)redisCommand(this->context, "incr currentAmount");
     checkExecution();
 
     freeReplyObject(this->reply);
-    
+
     return currentFileID;
 }
 
@@ -68,7 +68,7 @@ int RedisHandler::getLastFileID()
     /* The function will return the last
        (largest) file ID number in redis */
 
-    this->reply = (redisReply*)redisCommand(this->context, "get currentAmount");
+    this->reply = (redisReply *)redisCommand(this->context, "get currentAmount");
 
     if (!this->reply || this->context->err || this->reply->type != REDIS_REPLY_STRING)
     {
@@ -88,7 +88,7 @@ std::string RedisHandler::getFileName(int fileID)
 
     std::string command = "hmget fileID:" + std::to_string(fileID) + " fileName";
 
-    this->reply = (redisReply*)redisCommand(this->context, command.c_str());
+    this->reply = (redisReply *)redisCommand(this->context, command.c_str());
     checkExecution();
 
     std::string fileName = this->reply->element[0]->str;
@@ -103,9 +103,7 @@ std::string RedisHandler::formatCommand(std::string fileMetaData[], int fileID)
     /* The function will format the command to be executable.
        The format is: (fileID, fileName, fileSize) */
 
-    std::string command = "hmset fileID:" + std::to_string(fileID)
-                        + " fileName " + fileMetaData[0]
-                        + " fileSize " + fileMetaData[1];
+    std::string command = "hmset fileID:" + std::to_string(fileID) + " fileName " + fileMetaData[0] + " fileSize " + fileMetaData[1];
 
     return command;
 }
