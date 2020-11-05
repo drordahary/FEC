@@ -15,6 +15,8 @@ DirectoryReader::DirectoryReader(std::string directoryPath)
     {
         throw("Couldn't open directory");
     }
+
+    closedir(this->directory->dir);
 }
 
 DirectoryReader::~DirectoryReader()
@@ -25,29 +27,54 @@ DirectoryReader::~DirectoryReader()
     delete this->directory;
 }
 
-void DirectoryReader::iterateDirectory(std::string newPath)
+void DirectoryReader::iterateDirectory(std::string currentDirectory)
 {
-    /* The function will iterate a directory 
-       and will use the function moveFiles */
+    /* This recursive function will iterate over sub-directories
+       as well and will save each path found to a vector */
 
-    while ((this->directory->entry = readdir(this->directory->dir)) != NULL)
+    DIR *dir = opendir(currentDirectory.c_str());
+    struct dirent *entry;
+
+    while ((entry = readdir(dir)) != NULL)
     {
-        if (this->directory->entry->d_type == IS_FILE)
+        if (*(entry->d_name) != '.' && entry->d_type != IS_FILE) // Directory found
         {
-            moveFile(newPath, this->directory->entry->d_name);
+            std::string path = currentDirectory + "/" + entry->d_name + "/";
+            iterateDirectory(path);
+        }
+
+        else if (*(entry->d_name) != '.') // File found
+        {
+            std::string path = (currentDirectory + "/" + entry->d_name);
+            int pos = strnlen(FILES_PATH, MAX_LENGTH);
+
+            path = path.substr(pos);
+
+            pos = path.find('/');
+
+            if (pos == -1)
+            {
+                this->paths.push_back(entry->d_name);
+            }
+
+            else
+            {
+                path = path.substr(pos + 1);
+                this->paths.push_back(path);
+            }
         }
     }
 
-    closedir(this->directory->dir);
+    closedir(dir);
 }
 
-void DirectoryReader::moveFile(std::string newPath, std::string filename)
+void DirectoryReader::moveFile(std::string newPath, std::string filePath)
 {
     /* The function will move the files from the 
        current opened directory to the new path */
 
-    std::string pathToFile = this->directory->directoryPath + "/" + filename;
-    newPath += "/" + filename;
+    std::string pathToFile = std::string(FILES_PATH) + "/" + filePath;
+    newPath += "/" + filePath;
 
     if (rename(pathToFile.c_str(), newPath.c_str()) != 0)
     {
@@ -61,4 +88,12 @@ void DirectoryReader::setDirectoryPath(std::string newPath)
        current path to a new path */
 
     this->directory->directoryPath = newPath;
+}
+
+std::vector<std::string> DirectoryReader::getPaths()
+{
+    /* The function will return the 
+       vector containing the paths */
+
+    return this->paths;
 }

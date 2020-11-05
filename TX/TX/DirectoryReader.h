@@ -3,8 +3,11 @@
 #include <iostream>
 #include <dirent.h>
 #include <string.h>
+#include <vector>
 
 #define IS_FILE 0x8
+#define FILES_PATH "/home/magshimim/Documents/Files"
+#define MAX_LENGTH 1024
 
 typedef struct Directory
 {
@@ -17,9 +20,9 @@ typedef struct Directory
 class DirectoryReader
 {
 private:
+    std::string directoryPath;
     Directory *directory;
-
-    void moveFile(std::string newPath, std::string filename);
+    std::vector<std::string> paths;
 
 public:
     DirectoryReader(std::string directoryPath);
@@ -27,4 +30,8 @@ public:
 
     void iterateDirectory(std::string newPath);
     void setDirectoryPath(std::string newPath);
+
+    void moveFile(std::string newPath, std::string filePath);
+
+    std::vector<std::string> getPaths();
 };

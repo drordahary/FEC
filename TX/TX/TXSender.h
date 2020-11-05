@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/stat.h>
 
 #include "FileReader.h"
 #include "Serializer.h"
@@ -13,7 +14,6 @@
 #include "RedisHandler.h"
 #include "DirectoryReader.h"
 
-#define FILES_PATH "/home/magshimim/Documents/Files"
 #define TOSEND_PATH "./ToSend"
 #define ARCHIVE_PATH "./Archive"
 

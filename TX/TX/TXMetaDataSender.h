@@ -5,7 +5,7 @@
 typedef struct FileMetaData
 {
     unsigned int ID;
-    std::string filename;
+    std::string filePath;
     unsigned int size;
 
 } FileMetaData;
@@ -17,9 +17,13 @@ private:
     FileReader fileReader;
     RedisHandler redisHandler;
     FileMetaData *metaData;
+    std::vector<std::string> paths;
 
     int saveToRedis();
     void bufferBuilder();
+
+    void createStructure(std::string newPath, std::string path);
+    void moveFiles(std::string newPath);
 
 public:
     TXMetaDataSender(std::string IP, unsigned int port);
@@ -27,3 +31,5 @@ public:
 
     void sendMetaData();
 };
+
+void createFolder(std::string left, std::string currentPath);

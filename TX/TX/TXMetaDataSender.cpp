@@ -27,43 +27,78 @@ void TXMetaDataSender::sendMetaData()
        to send and also will call a function that will
        save the meta data to redis */
 
+    this->directoryReader.iterateDirectory(FILES_PATH);
+    paths = this->directoryReader.getPaths();
+
     std::string currentPath = "";
     std::string parameters[2];
 
-    Directory *directory = new Directory();
-
-    directory->directoryPath = FILES_PATH;
-    directory->dir = opendir(directory->directoryPath.c_str());
-
-    if (directory->dir == NULL)
+    for (auto start = this->paths.begin(); start < this->paths.end(); start++)
     {
-        throw("Couldn't open directory");
+        // < Creating the structure in the new folder > //
+
+        createStructure(TOSEND_PATH, *start);
+
+        // < Building the path and set the file to use > //
+
+        currentPath = std::string(FILES_PATH) + "/" + *start;
+        this->fileReader.setFile(currentPath.c_str());
+
+        // < Set the meta data and closing the file > //
+
+        this->metaData->filePath = *start;
+        this->metaData->size = this->fileReader.getFileSize();
+
+        this->fileReader.closeFile();
+        this->metaData->ID = saveToRedis();
+
+        // < Moving the file, building the buffer and sending the packet > //
+
+        this->directoryReader.moveFile(TOSEND_PATH, *start);
+
+        bufferBuilder();
+        sendPacket();
     }
-
-    while ((directory->entry = readdir(directory->dir)) != NULL)
-    {
-        if (directory->entry->d_type == IS_FILE)
-        {
-            currentPath = std::string(FILES_PATH) + "/" + directory->entry->d_name;
-
-            this->fileReader.setFile(currentPath.c_str());
-
-            this->metaData->filename = directory->entry->d_name;
-            this->metaData->size = this->fileReader.getFileSize();
-
-            this->fileReader.closeFile();
-
-            this->metaData->ID = saveToRedis();
-
-            bufferBuilder();
-            sendPacket();
-        }
-    }
-
-    closedir(directory->dir);
-    delete directory;
 
     this->redisHandler.closeConnection();
+}
+
+void TXMetaDataSender::createStructure(std::string newPath, std::string path)
+{
+    /* This function will create the folders structure
+       (the hierarchy) so it matches the same
+       structure as the original folder */
+
+    int pos;
+    pos = path.find('/');
+
+    if (pos != -1)
+    {
+        createFolder(path, newPath + "/");
+    }
+}
+
+void createFolder(std::string left, std::string currentPath)
+{
+    /* This recursive function will create only 
+       the folder with a specific structure */
+
+    if (left[0] == '/')
+    {
+        left.erase(0, 1);
+    }
+
+    int pos = left.find('/');
+
+    if (pos == -1)
+    {
+        return;
+    }
+
+    currentPath = currentPath + left.substr(0, pos) + "/";
+    mkdir(currentPath.c_str(), 0777);
+
+    createFolder(left.substr(pos + 1), currentPath);
 }
 
 int TXMetaDataSender::saveToRedis()
@@ -74,7 +109,7 @@ int TXMetaDataSender::saveToRedis()
 
     std::string parameters[2];
 
-    parameters[0] = this->metaData->filename;
+    parameters[0] = this->metaData->filePath;
     parameters[1] = std::to_string(this->metaData->size);
 
     int ID = this->redisHandler.addToRedis(parameters);
@@ -91,7 +126,7 @@ void TXMetaDataSender::bufferBuilder()
     std::string metaDataBuffer = "";
 
     metaDataBuffer += std::to_string(this->metaData->ID) + ",";
-    metaDataBuffer += this->metaData->filename + ",";
+    metaDataBuffer += this->metaData->filePath + ",";
     metaDataBuffer += std::to_string(this->metaData->size);
 
     const char *currentBuffer = metaDataBuffer.c_str();
