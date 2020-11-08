@@ -16,6 +16,7 @@
 				"TXSender.cpp",
 				"TXDataSender.cpp",
 				"TXMetaDataSender.cpp",
+				"HierarchyBuilder.cpp",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}",
 				"-lhiredis"

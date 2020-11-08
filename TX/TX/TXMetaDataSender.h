@@ -22,7 +22,6 @@ private:
     int saveToRedis();
     void bufferBuilder();
 
-    void createStructure(std::string newPath, std::string path);
     void moveFiles(std::string newPath);
 
 public:
@@ -31,5 +30,3 @@ public:
 
     void sendMetaData();
 };
-
-void createFolder(std::string left, std::string currentPath);

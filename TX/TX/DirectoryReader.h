@@ -31,7 +31,7 @@ public:
     void iterateDirectory(std::string newPath);
     void setDirectoryPath(std::string newPath);
 
-    void moveFile(std::string newPath, std::string filePath);
+    void moveFile(std::string newPath, std::string filePath, std::string contatingFolder);
 
     std::vector<std::string> getPaths();
 };

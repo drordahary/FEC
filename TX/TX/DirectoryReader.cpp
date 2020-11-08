@@ -68,12 +68,12 @@ void DirectoryReader::iterateDirectory(std::string currentDirectory)
     closedir(dir);
 }
 
-void DirectoryReader::moveFile(std::string newPath, std::string filePath)
+void DirectoryReader::moveFile(std::string newPath, std::string filePath, std::string containingFolder)
 {
     /* The function will move the files from the 
        current opened directory to the new path */
 
-    std::string pathToFile = std::string(FILES_PATH) + "/" + filePath;
+    std::string pathToFile = containingFolder + "/" + filePath;
     newPath += "/" + filePath;
 
     if (rename(pathToFile.c_str(), newPath.c_str()) != 0)

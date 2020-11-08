@@ -9,6 +9,7 @@ private:
     Serializer serializer;
     Storage storage;
     DirectoryReader directoryReader;
+    RedisHandler redisHandler;
 
     void readFile(int amountToRead, int position);
 

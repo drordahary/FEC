@@ -6,13 +6,13 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <sys/stat.h>
 
 #include "FileReader.h"
 #include "Serializer.h"
 #include "Storage.h"
 #include "RedisHandler.h"
 #include "DirectoryReader.h"
+#include "HierarchyBuilder.h"
 
 #define TOSEND_PATH "./ToSend"
 #define ARCHIVE_PATH "./Archive"

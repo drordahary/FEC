@@ -1,7 +1,8 @@
 #include "TXDataSender.h"
 
 TXDataSender::TXDataSender(std::string IP, unsigned int port) : TXSender(IP, port),
-																directoryReader(TOSEND_PATH)
+																directoryReader(TOSEND_PATH),
+																redisHandler(0)
 {
 	/* The constructor will first call the base class constructor
        in order to initialize the socket, then the object
@@ -17,6 +18,7 @@ TXDataSender::~TXDataSender()
        and then will automatically free the allocated memory */
 
 	close(this->sc);
+	this->redisHandler.closeConnection();
 }
 
 void TXDataSender::readFile(int amountToRead, int position)
@@ -42,7 +44,11 @@ void TXDataSender::sendBurst(std::string *packets)
 void TXDataSender::preparePackets(int filesize, int fileID)
 {
 	/* This function will calculate how much to read from
-	   the file and will prepare the packets to be sent */
+	   the file and will prepare the packets to be sent
+	   NOTE: The function sends packest in burst and not
+	   one by one, so each time it'll take four pieces
+	   of the file (depending on the size of the file
+	   and the buffer) and then will send this burst */
 
 	int position = 0;
 	int amountToRead = 0;
@@ -90,39 +96,41 @@ void TXDataSender::preparePackets(int filesize, int fileID)
 
 void TXDataSender::prepareFiles()
 {
-	/* This function will iterate over a directory
-	   and will prepare each file to be sent */
+	/* This function will iterate over redis saved IDs and will
+	   use these IDs to get the file's path and send the data */
 
 	std::string currentPath = "";
+	std::string fileName = "";
+
 	int currentFileID = this->lastIDUpdated;
+	int lastID = this->redisHandler.getLastFileID();
 
-	Directory *directory = new Directory();
-
-	directory->directoryPath = TOSEND_PATH;
-	directory->dir = opendir(directory->directoryPath.c_str());
-
-	if (directory->dir == NULL)
+	while (currentFileID <= lastID)
 	{
-		throw("Couldn't open directory");
+		// < Building the file path and set the file to be used > //
+
+		fileName = this->redisHandler.getFileName(currentFileID);
+
+		currentPath = std::string(TOSEND_PATH) + "/" + fileName;
+		this->fileReader.setFile(currentPath.c_str());
+
+		// < Calling the function that handles sending the file's data > //
+
+		preparePackets(this->fileReader.getFileSize(), currentFileID);
+
+		// < Closing the current file > //
+
+		this->fileReader.closeFile();
+
+		// < Creating the structure (hierarchy) and moving the file > //
+
+		createStructure(ARCHIVE_PATH, fileName);
+		this->directoryReader.moveFile(ARCHIVE_PATH, fileName, TOSEND_PATH);
+
+		// < Increamenting the ID to move to the next file > //
+
+		currentFileID++;
 	}
-
-	while ((directory->entry = readdir(directory->dir)) != NULL)
-	{
-		if (directory->entry->d_type == IS_FILE)
-		{
-			currentPath = std::string(TOSEND_PATH) + "/" + directory->entry->d_name;
-
-			this->fileReader.setFile(currentPath.c_str());
-
-			preparePackets(this->fileReader.getFileSize(), currentFileID);
-			currentFileID++;
-
-			this->fileReader.closeFile();
-		}
-	}
-
-	closedir(directory->dir);
-	delete directory;
 }
 
 void TXDataSender::startSending()
