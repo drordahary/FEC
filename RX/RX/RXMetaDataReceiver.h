@@ -19,11 +19,12 @@ private:
     RedisHandler redisHandler;
     void saveToRedis();
 
-    void organizeData(std::string metaData);
+    void organizeData();
 
 public:
     RXMetaDataReceiver(unsigned int port);
     ~RXMetaDataReceiver();
 
     void receiveMetaData();
+    void startReceiving();
 };

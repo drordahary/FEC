@@ -28,37 +28,48 @@ void RXMetaDataReceiver::receiveMetaData()
         std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), 0);
 
         receivePacket();
-
-        std::string content = this->buffer;
-        organizeData(content);
-
-        saveToRedis();
     }
 }
 
-void RXMetaDataReceiver::organizeData(std::string metaData)
+void RXMetaDataReceiver::organizeData()
 {
     /* The function will split the metaData
        and will also set the struct FileMetaData */
 
-    char delimeter = ',';
-    size_t position = 0;
+    std::string metaData = "";
 
-    int i = 0;
-
-    while (((position = metaData.find(delimeter)) != std::string::npos) && i < 2)
+    while (true)
     {
-        this->splittedData[i] = metaData.substr(0, position);
-        metaData.erase(0, position + 1);
+        std::unique_lock<std::mutex> lock(this->queueMutex);
+        this->queueCondition.wait(lock); // Waiting for queue to fill
 
-        i++;
+        metaData = this->packetsReceived.front();
+        this->packetsReceived.pop();
+
+        lock.unlock();
+
+        char delimeter = ',';
+        size_t position = 0;
+
+        int i = 0;
+
+        while (((position = metaData.find(delimeter)) != std::string::npos) && i < 2)
+        {
+            this->splittedData[i] = metaData.substr(0, position);
+            metaData.erase(0, position + 1);
+
+            i++;
+        }
+
+        this->splittedData[2] = metaData;
+
+        this->fileMetaData->ID = std::stoi(this->splittedData[0]);
+        this->fileMetaData->filename = this->splittedData[1];
+        this->fileMetaData->size = std::stoi(this->splittedData[2]);
+
+        createStructure(FILES_PATH, this->fileMetaData->filename);
+        saveToRedis();
     }
-
-    this->splittedData[2] = metaData;
-
-    this->fileMetaData->ID = std::stoi(this->splittedData[0]);
-    this->fileMetaData->filename = this->splittedData[1];
-    this->fileMetaData->size = std::stoi(this->splittedData[2]);
 }
 
 void RXMetaDataReceiver::saveToRedis()
@@ -72,4 +83,16 @@ void RXMetaDataReceiver::saveToRedis()
     parameters[1] = std::to_string(this->fileMetaData->size);
 
     this->redisHandler.addToRedis(parameters);
+}
+
+void RXMetaDataReceiver::startReceiving()
+{
+    /* This function will initialize the threads
+       that receive and handle the data */
+
+    std::thread receiverThread(&RXMetaDataReceiver::receiveMetaData, this);
+    std::thread organizerThread(&RXMetaDataReceiver::organizeData, this);
+
+    receiverThread.join();
+    organizerThread.join();
 }

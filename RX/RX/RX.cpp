@@ -6,15 +6,15 @@ int main()
 	   and will try to create a socket */
 
 	RXMetaDataReceiver *metaDataReceiver = new RXMetaDataReceiver(META_DATA_PORT);
-	RXDataReceiver *dataReceiver = new RXDataReceiver(DATA_PORT);
+	//RXDataReceiver *dataReceiver = new RXDataReceiver(DATA_PORT);
 
-	std::thread metaDataThread(&RXMetaDataReceiver::receiveMetaData, metaDataReceiver);
+	std::thread metaDataThread(&RXMetaDataReceiver::startReceiving, metaDataReceiver);
 
-	dataReceiver->startReceiving();
+	//dataReceiver->startReceiving();
 	metaDataThread.join();
 
 	delete metaDataReceiver;
-	delete dataReceiver;
+	//delete dataReceiver;
 
 	return 0;
 }
