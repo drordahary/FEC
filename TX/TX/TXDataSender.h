@@ -2,6 +2,8 @@
 
 #include "TXSender.h"
 
+#define SEND_TIMES 2
+
 class TXDataSender : public TXSender
 {
 private:

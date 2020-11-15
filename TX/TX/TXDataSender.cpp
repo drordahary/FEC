@@ -83,10 +83,11 @@ void TXDataSender::prepareFiles()
 
 		// < Calling the function that handles sending the file's data > //
 
-		preparePackets(this->fileReader.getFileSize(), currentFileID);
-
-		// < Closing the current file > //
-
+		for (int i = 0; i < SEND_TIMES; i++)
+		{
+			preparePackets(this->fileReader.getFileSize(), currentFileID);
+		}
+		
 		this->fileReader.closeFile();
 
 		// < Creating the structure (hierarchy) and moving the file > //
