@@ -47,7 +47,6 @@ void RXDataReceiver::handleData()
 
     int fileID = 0;
     int packetID = 0;
-    std::string message;
 
     deserializer.deserializePacket(this->buffer);
 
