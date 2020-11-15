@@ -47,11 +47,4 @@ void RXReceiver::receivePacket()
         std::cout << "Failed to receive" << std::endl;
         exit(EXIT_FAILURE);
     }
-
-    std::unique_lock<std::mutex> lock(this->queueMutex); // Entering critical section
-
-    this->packetsReceived.push(this->buffer);
-
-    lock.unlock();
-    this->queueCondition.notify_one(); // Notifying the consumer thread
 }

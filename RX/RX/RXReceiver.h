@@ -10,9 +10,6 @@
 #include <netinet/in.h> 
 #include <unistd.h>
 #include <thread>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
 #include <sys/select.h>
 
 #include "FileBuilder.h"
@@ -37,10 +34,6 @@ protected:
     Socket* sock;
     int sockfd;
     char buffer[BUFFER_SIZE + 1];
-
-    std::queue<std::string> packetsReceived;
-    std::mutex queueMutex;
-    std::condition_variable queueCondition;
 
     void receivePacket();
 
