@@ -87,7 +87,7 @@ void TXDataSender::prepareFiles()
 		{
 			preparePackets(this->fileReader.getFileSize(), currentFileID);
 		}
-		
+
 		this->fileReader.closeFile();
 
 		// < Creating the structure (hierarchy) and moving the file > //
