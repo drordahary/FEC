@@ -7,15 +7,12 @@ class TXDataSender : public TXSender
 private:
     FileReader fileReader;
     Serializer serializer;
-    Storage storage;
     DirectoryReader directoryReader;
     RedisHandler redisHandler;
 
     void readFile(int amountToRead, int position);
 
     void preparePackets(int filesize, int fileID);
-    void sendBurst(std::string *packets);
-
     void prepareFiles();
 
 public:

@@ -9,7 +9,6 @@ TXDataSender::TXDataSender(std::string IP, unsigned int port) : TXSender(IP, por
        directoryReader and then the rest of the fields */
 
 	this->serializer = Serializer();
-	this->storage = Storage();
 }
 
 TXDataSender::~TXDataSender()
@@ -29,68 +28,36 @@ void TXDataSender::readFile(int amountToRead, int position)
 	this->fileReader.readFile(amountToRead, position, this->buffer);
 }
 
-void TXDataSender::sendBurst(std::string *packets)
-{
-	/* The function will send the
-	   storage packets one by one */
-
-	for (int i = 0; i < BURST && !(packets[i].empty()); i++)
-	{
-		std::copy(packets[i].c_str(), packets[i].c_str() + BUFFER_SIZE + 1, this->buffer);
-		sendPacket();
-	}
-}
-
 void TXDataSender::preparePackets(int filesize, int fileID)
 {
 	/* This function will calculate how much to read from
-	   the file and will prepare the packets to be sent
-	   NOTE: The function sends packest in burst and not
-	   one by one, so each time it'll take four pieces
-	   of the file (depending on the size of the file
-	   and the buffer) and then will send this burst */
+	   the file and will prepare the packets to be sent */
 
 	int position = 0;
 	int amountToRead = 0;
 	int leftToRead = filesize;
-	int i = 0;
 
 	while (leftToRead > 0)
 	{
-		for (i = 0; i < BURST && leftToRead > 0; i++)
+		if (leftToRead >= BUFFER_SIZE - (HEX_LENGTH * 2))
 		{
-			std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
-
-			if (leftToRead >= BUFFER_SIZE - (HEX_LENGTH * 2))
-			{
-				amountToRead = BUFFER_SIZE - (HEX_LENGTH * 2);
-			}
-
-			else
-			{
-				amountToRead = leftToRead;
-			}
-
-			readFile(amountToRead, position);
-			this->serializer.serializePacket(this->buffer, fileID);
-
-			this->storage.addToStorage(this->buffer);
-
-			position += amountToRead;
-			leftToRead -= amountToRead;
+			amountToRead = BUFFER_SIZE - (HEX_LENGTH * 2);
 		}
 
-		sendBurst(this->storage.getStorage());
-
-		if (leftToRead > 0)
+		else
 		{
-			this->storage.clearStorage();
+			amountToRead = leftToRead;
 		}
-	}
 
-	if (filesize < (BUFFER_SIZE - (HEX_LENGTH * 2)))
-	{
-		this->storage.clearStorage();
+		readFile(amountToRead, position);
+		this->serializer.serializePacket(this->buffer, fileID);
+
+		sendPacket();
+
+		position += amountToRead;
+		leftToRead -= amountToRead;
+
+		std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
 	}
 }
 

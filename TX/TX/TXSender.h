@@ -9,7 +9,6 @@
 
 #include "FileReader.h"
 #include "Serializer.h"
-#include "Storage.h"
 #include "RedisHandler.h"
 #include "DirectoryReader.h"
 #include "HierarchyBuilder.h"

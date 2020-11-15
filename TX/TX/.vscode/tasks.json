@@ -10,7 +10,6 @@
 				"${file}",
 				"FileReader.cpp",
 				"Serializer.cpp",
-				"Storage.cpp",
 				"RedisHandler.cpp",
 				"DirectoryReader.cpp",
 				"TXSender.cpp",
