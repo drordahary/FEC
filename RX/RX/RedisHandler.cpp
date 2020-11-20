@@ -81,6 +81,23 @@ int RedisHandler::getLastFileID()
     return lastFileID;
 }
 
+int RedisHandler::getDirectoryCount()
+{
+    std::string command = "get dirCount";
+
+    this->reply = (redisReply *)redisCommand(this->context, command.c_str());
+
+    if (!this->reply || this->context->err || this->reply->type != REDIS_REPLY_STRING)
+    {
+        throw("Couldn't read from redis");
+    }
+
+    int dirCount = atoi(this->reply->str);
+
+    freeReplyObject(this->reply);
+    return dirCount;
+}
+
 std::string RedisHandler::getFileName(int fileID)
 {
     /* The function will receive a file ID to

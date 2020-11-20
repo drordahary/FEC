@@ -10,6 +10,7 @@
 #include <netinet/in.h> 
 #include <unistd.h>
 #include <thread>
+#include <vector>
 #include <sys/select.h>
 
 #include "FileBuilder.h"
