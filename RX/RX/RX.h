@@ -8,3 +8,6 @@
 #define PORTS_PER_CHANNEL 10
 
 void preparePorts();
+
+void openMetaDataPorts(std::vector<int> ports);
+void openDataPorts(std::vector<int> ports);
