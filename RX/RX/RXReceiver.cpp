@@ -1,6 +1,6 @@
 #include "RXReceiver.h"
 
-RXReceiver::RXReceiver(unsigned int port)
+RXReceiver::RXReceiver(unsigned int port, std::string workingChannel)
 {
     /* The constructor will use the the given
        port to initialize the socket */

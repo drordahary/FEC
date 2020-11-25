@@ -1,7 +1,7 @@
 #include "RXMetaDataReceiver.h"
 
-RXMetaDataReceiver::RXMetaDataReceiver(unsigned int port) : RXReceiver(port),
-                                                            redisHandler(1)
+RXMetaDataReceiver::RXMetaDataReceiver(unsigned int port, std::string workingChannel) : RXReceiver(port, workingChannel),
+                                                                                        redisHandler(1)
 {
     /* The constructor will first call the base class to 
        initialize connection and then connect to Redis */
@@ -54,7 +54,7 @@ void RXMetaDataReceiver::organizeData(std::string metaData)
 
     setMetaData();
 
-    createStructure(FILES_PATH, this->fileMetaData->filename);
+    createStructure(this->workingChannel, this->fileMetaData->filename);
     saveToRedis();
 }
 

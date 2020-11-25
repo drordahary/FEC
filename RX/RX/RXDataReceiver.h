@@ -15,7 +15,7 @@ private:
     void handleChangingFile(int fileID);
 
 public:
-    RXDataReceiver(unsigned int port);
+    RXDataReceiver(unsigned int port, std::string workingChannel);
     ~RXDataReceiver();
 
     void receiveData();

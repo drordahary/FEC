@@ -22,8 +22,10 @@ public:
 
     int addToRedis(std::string fileMetaData[]);
 
-    int getLastFileID();
     int getDirectoryCount();
+    std::string getChannelName(int channelID);
+
+    int getLastFileID();
     std::string getFileName(int fileID);
 
     void closeConnection();

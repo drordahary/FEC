@@ -21,8 +21,11 @@ void preparePorts()
 	std::vector<int> metaDataPorts;
 	std::vector<int> dataPorts;
 
+	std::vector<std::string> channels;
+
 	for (int i = 1; i <= dirCount; i++)
 	{
+		channels.push_back(redisHandler.getChannelName(i));
 		metaDataPorts.push_back(PORT_OFFSET + i);
 
 		for (int j = 0; j < PORTS_PER_CHANNEL; j++)
@@ -31,14 +34,16 @@ void preparePorts()
 		}
 	}
 
-	std::thread metaDataThread(openMetaDataPorts, std::ref(metaDataPorts));
-	std::thread daatThread(openDataPorts, std::ref(dataPorts));
+	std::thread metaDataThread(openMetaDataPorts, std::ref(metaDataPorts), std::ref(channels));
+	std::thread dataThread(openDataPorts, std::ref(dataPorts), std::ref(channels));
 
 	metaDataThread.join();
-	daatThread.join();
+	dataThread.join();
+
+	redisHandler.closeConnection();
 }
 
-void openMetaDataPorts(std::vector<int> ports)
+void openMetaDataPorts(std::vector<int> ports, std::vector<std::string> channels)
 {
 	/* The function will start the meta data listeners
 	   on a specific port for each listener */
@@ -46,12 +51,16 @@ void openMetaDataPorts(std::vector<int> ports)
 	std::vector<RXMetaDataReceiver *> receivers;
 	std::vector<std::thread> openThreads;
 
+	auto channel = channels.begin();
+
 	for (auto port = ports.begin(); port != ports.end(); port++)
 	{
-		receivers.push_back(new RXMetaDataReceiver(*port));
+		receivers.push_back(new RXMetaDataReceiver(*port, *channel));
 
 		std::thread receiverThread(&RXMetaDataReceiver::receiveMetaData, receivers.back());
 		openThreads.push_back(std::move(receiverThread));
+
+		channel++;
 
 		std::cout << "Meta Data port number " << *port << " started..." << std::endl;
 	}
@@ -63,13 +72,12 @@ void openMetaDataPorts(std::vector<int> ports)
 		if (openThreads[i].joinable())
 		{
 			openThreads.at(i).join();
+			delete receivers[i];
 		}
-
-		delete receivers[i];
 	}
 }
 
-void openDataPorts(std::vector<int> ports)
+void openDataPorts(std::vector<int> ports, std::vector<std::string> channels)
 {
 	/* The function will start the data listeners
 	   on a specific port for each listener */
@@ -77,14 +85,21 @@ void openDataPorts(std::vector<int> ports)
 	std::vector<RXDataReceiver *> receivers;
 	std::vector<std::thread> openThreads;
 
-	for (auto port = ports.begin(); port != ports.end(); port++)
+	auto channel = channels.begin();
+	auto port = ports.begin();
+
+	for (auto channel = channels.begin(); channel != channels.end(); channel++)
 	{
-		receivers.push_back(new RXDataReceiver(*port));
+		for (int i = 0; i < PORTS_PER_CHANNEL; i++)
+		{
+			receivers.push_back(new RXDataReceiver(*port, *channel));
 
-		std::thread receiverThread(&RXDataReceiver::receiveData, receivers.back());
-		openThreads.push_back(std::move(receiverThread));
+			std::thread receiverThread(&RXDataReceiver::receiveData, receivers.back());
+			openThreads.push_back(std::move(receiverThread));
 
-		std::cout << "Data port number " << *port << " started..." << std::endl;
+			std::cout << "Data port number " << *port << " started..." << std::endl;
+			port++;
+		}
 	}
 
 	int size = openThreads.size();
@@ -94,8 +109,7 @@ void openDataPorts(std::vector<int> ports)
 		if (openThreads[i].joinable())
 		{
 			openThreads.at(i).join();
+			delete receivers[i];
 		}
-
-		delete receivers[i];
 	}
 }

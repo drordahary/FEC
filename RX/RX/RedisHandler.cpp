@@ -98,6 +98,22 @@ int RedisHandler::getDirectoryCount()
     return dirCount;
 }
 
+std::string RedisHandler::getChannelName(int channelID)
+{
+    /* The function will return the channel
+       name based on the given ID */
+
+    std::string command = "get dirID:" + std::to_string(channelID);
+
+    this->reply = (redisReply *)redisCommand(this->context, command.c_str());
+    checkExecution();
+
+    std::string channelName = this->reply->str;
+    freeReplyObject(this->reply);
+
+    return channelName;
+}
+
 std::string RedisHandler::getFileName(int fileID)
 {
     /* The function will receive a file ID to

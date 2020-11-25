@@ -1,7 +1,7 @@
 #include "RXDataReceiver.h"
 
-RXDataReceiver::RXDataReceiver(unsigned int port) : RXReceiver(port),
-                                                    redisHandler(1)
+RXDataReceiver::RXDataReceiver(unsigned int port, std::string workingChannel) : RXReceiver(port, workingChannel),
+                                                                                redisHandler(1)
 {
     /* The constructor will first call the base class 
        constructor in order to initialize the socket,
@@ -74,7 +74,7 @@ void RXDataReceiver::handleFirstPacket(int fileID)
     std::string fileName = this->redisHandler.getFileName(fileID);
 
     this->fileBuilder.closeFile();
-    this->fileBuilder.setFile(std::string(FILES_PATH) + "/" + fileName);
+    this->fileBuilder.setFile(this->workingChannel + "/" + fileName);
 
     currentFileID = fileID;
 }
@@ -87,7 +87,7 @@ void RXDataReceiver::handleChangingFile(int fileID)
     std::string fileName = this->redisHandler.getFileName(fileID);
 
     this->fileBuilder.closeFile();
-    this->fileBuilder.setFile(std::string(FILES_PATH) + "/" + fileName);
+    this->fileBuilder.setFile(this->workingChannel + "/" + fileName);
 
     currentFileID = fileID;
 }

@@ -18,8 +18,6 @@
 #include "RedisHandler.h"
 #include "HierarchyBuilder.h"
 
-#define FILES_PATH "./Files"
-
 typedef struct Socket
 {
     int sc;
@@ -36,9 +34,11 @@ protected:
     int sockfd;
     char buffer[BUFFER_SIZE + 1];
 
+    std::string workingChannel;
+
     void receivePacket();
 
 public:
-    RXReceiver(unsigned int port);
+    RXReceiver(unsigned int port, std::string workingChannel);
     ~RXReceiver();
 };
