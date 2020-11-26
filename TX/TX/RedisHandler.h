@@ -3,6 +3,7 @@
 #include <iostream>
 #include <hiredis/hiredis.h>
 #include <string.h>
+#include <mutex>
 
 class RedisHandler
 {
@@ -15,6 +16,8 @@ private:
     std::string formatCommand(std::string fileMetaData[], int fileID);
 
 public:
+    static std::mutex mLock;
+
     RedisHandler(int databaseID);
     ~RedisHandler();
 

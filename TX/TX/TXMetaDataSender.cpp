@@ -33,19 +33,15 @@ void TXMetaDataSender::sendMetaData()
     std::string currentPath = "";
     std::string parameters[2];
 
-    std::string toSendChannelPath = std::string(TOSEND_PATH) + "/" + this->workingChannel;
-    std::string filesChannelPath = std::string(FILES_PATH) + "/" + this->workingChannel;
-
     for (auto start = this->paths.begin(); start < this->paths.end(); start++)
     {
         // < Creating the structure in the new folder > //
 
-        createChannelDirectory(TOSEND_PATH, this->workingChannel);
-        createStructure(toSendChannelPath, *start);
+        createStructure(TOSEND_PATH, *start);
 
         // < Building the path and set the file to use > //
 
-        currentPath = filesChannelPath + "/" + *start;
+        currentPath = std::string(FILES_PATH) + "/" + *start;
         this->fileReader.setFile(currentPath.c_str());
 
         // < Set the meta data and closing the file > //
@@ -58,9 +54,10 @@ void TXMetaDataSender::sendMetaData()
 
         // < Moving the file, building the buffer and sending the packet > //
 
-        this->directoryReader.moveFile(toSendChannelPath, *start, filesChannelPath);
+        this->directoryReader.moveFile(TOSEND_PATH, *start, FILES_PATH);
 
         bufferBuilder();
+        std::cout << "About to send " << *start << std::endl;
         sendPacket();
     }
 

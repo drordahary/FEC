@@ -5,5 +5,3 @@
 
 void createStructure(std::string newPath, std::string path);
 void createFolder(std::string left, std::string currentPath);
-
-void createChannelDirectory(std::string saveTo, std::string channelName);

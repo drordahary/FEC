@@ -32,7 +32,7 @@ void preparePorts()
 	}
 
 	openMetaDataPorts(metaDataPorts, channels);
-	openDataPorts(dataPorts, channels);
+	//openDataPorts(dataPorts, channels);
 
 	redisHandler.closeConnection();
 }
@@ -43,23 +43,35 @@ void openMetaDataPorts(std::vector<int> metaDataPorts, std::vector<std::string> 
 	   meta data ports to start sending */
 
 	std::vector<TXMetaDataSender *> senders;
+	std::vector<std::thread> openThreads;
+
 	auto channel = channels.begin();
 
 	for (auto port = metaDataPorts.begin(); port != metaDataPorts.end(); port++)
 	{
 		senders.push_back(new TXMetaDataSender(IP, *port, *channel));
-		std::thread(&TXMetaDataSender::sendMetaData, senders.back()).detach();
+
+		std::thread senderThread(&TXMetaDataSender::sendMetaData, senders.back());
+		openThreads.push_back(std::move(senderThread));
+
+		//senders.back()->sendMetaData();
 
 		channel++;
 
-		std::cout << "Started sending meta data on port " << *port << std::endl;
+		std::cout << "Started sending Meta Data on port " << *port << std::endl;
 	}
 
-	int size = senders.size();
+	int size = openThreads.size();
 
 	for (int i = 0; i < size; i++)
 	{
-		delete senders[i];
+		if (openThreads[i].joinable())
+		{
+			openThreads.at(i).join();
+			delete senders[i];
+
+			std::cout << "Port " << PORT_OFFSET + i << " closed" << std::endl;
+		}
 	}
 }
 
