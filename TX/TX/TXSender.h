@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <thread>
 
 #include "FileReader.h"
 #include "Serializer.h"
@@ -25,8 +26,10 @@ protected:
 
     char buffer[BUFFER_SIZE + 1];
 
+    std::string workingChannel;
+
 public:
-    TXSender(std::string IP, unsigned int port);
+    TXSender(std::string IP, unsigned int port, std::string workingChannel);
     ~TXSender();
 
     void sendPacket();

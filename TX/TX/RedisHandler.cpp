@@ -79,6 +79,42 @@ int RedisHandler::getLastFileID()
     return lastFileID;
 }
 
+int RedisHandler::getDirectoryCount()
+{
+    /* The function will return 
+       the amount of channels */
+
+    std::string command = "get dirCount";
+
+    this->reply = (redisReply *)redisCommand(this->context, command.c_str());
+
+    if (!this->reply || this->context->err || this->reply->type != REDIS_REPLY_STRING)
+    {
+        throw("Couldn't read from redis");
+    }
+
+    int dirCount = atoi(this->reply->str);
+
+    freeReplyObject(this->reply);
+    return dirCount;
+}
+
+std::string RedisHandler::getChannelName(int channelID)
+{
+    /* The function will return the channel
+       name based on the given ID */
+
+    std::string command = "get dirID:" + std::to_string(channelID);
+
+    this->reply = (redisReply *)redisCommand(this->context, command.c_str());
+    checkExecution();
+
+    std::string channelName = this->reply->str;
+    freeReplyObject(this->reply);
+
+    return channelName;
+}
+
 std::string RedisHandler::formatCommand(std::string fileMetaData[], int fileID)
 {
     /* The function will format the command to be executable.

@@ -2,10 +2,12 @@
 
 int TXSender::lastIDUpdated = 0;
 
-TXSender::TXSender(std::string IP, unsigned int port)
+TXSender::TXSender(std::string IP, unsigned int port, std::string workingChannel)
 {
 	/* THe constructor will initialize the socket
        given IP and Port */
+
+	this->workingChannel = workingChannel;
 
 	std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
 

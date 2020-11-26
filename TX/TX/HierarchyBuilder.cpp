@@ -37,3 +37,12 @@ void createFolder(std::string left, std::string currentPath)
 
     createFolder(left.substr(pos + 1), currentPath);
 }
+
+void createChannelDirectory(std::string saveTo, std::string channelName)
+{
+    /* This function will create a new
+       directory for the channel */
+
+    std::string path = saveTo + "/" + channelName;
+    mkdir(path.c_str(), 0777);
+}

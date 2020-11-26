@@ -18,7 +18,7 @@ private:
     void prepareFiles();
 
 public:
-    TXDataSender(std::string IP, unsigned int port);
+    TXDataSender(std::string IP, unsigned int port, std::string workingChannel);
     ~TXDataSender();
 
     void startSending();

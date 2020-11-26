@@ -1,8 +1,8 @@
 #include "TXDataSender.h"
 
-TXDataSender::TXDataSender(std::string IP, unsigned int port) : TXSender(IP, port),
-																directoryReader(TOSEND_PATH),
-																redisHandler(0)
+TXDataSender::TXDataSender(std::string IP, unsigned int port, std::string workingChannel) : TXSender(IP, port, workingChannel),
+																							directoryReader(TOSEND_PATH),
+																							redisHandler(0)
 {
 	/* The constructor will first call the base class constructor
        in order to initialize the socket, then the object

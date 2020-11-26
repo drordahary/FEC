@@ -18,7 +18,8 @@
 				"HierarchyBuilder.cpp",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}",
-				"-lhiredis"
+				"-lhiredis",
+				"-pthread"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"

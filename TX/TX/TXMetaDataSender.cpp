@@ -1,8 +1,8 @@
 #include "TXMetaDataSender.h"
 
-TXMetaDataSender::TXMetaDataSender(std::string IP, unsigned int port) : TXSender(IP, port),
-                                                                        directoryReader(FILES_PATH),
-                                                                        redisHandler(0)
+TXMetaDataSender::TXMetaDataSender(std::string IP, unsigned int port, std::string workingChannel) : TXSender(IP, port, workingChannel),
+                                                                                                    directoryReader(FILES_PATH),
+                                                                                                    redisHandler(0)
 {
     /* The constructor will first call the base class constructor
        in order to initialize the socket, then the object
@@ -27,21 +27,25 @@ void TXMetaDataSender::sendMetaData()
        to send and also will call a function that will
        save the meta data to redis */
 
-    this->directoryReader.iterateDirectory(FILES_PATH);
+    this->directoryReader.iterateDirectory(std::string(FILES_PATH) + "/" + this->workingChannel);
     paths = this->directoryReader.getPaths();
 
     std::string currentPath = "";
     std::string parameters[2];
 
+    std::string toSendChannelPath = std::string(TOSEND_PATH) + "/" + this->workingChannel;
+    std::string filesChannelPath = std::string(FILES_PATH) + "/" + this->workingChannel;
+
     for (auto start = this->paths.begin(); start < this->paths.end(); start++)
     {
         // < Creating the structure in the new folder > //
 
-        createStructure(TOSEND_PATH, *start);
+        createChannelDirectory(TOSEND_PATH, this->workingChannel);
+        createStructure(toSendChannelPath, *start);
 
         // < Building the path and set the file to use > //
 
-        currentPath = std::string(FILES_PATH) + "/" + *start;
+        currentPath = filesChannelPath + "/" + *start;
         this->fileReader.setFile(currentPath.c_str());
 
         // < Set the meta data and closing the file > //
@@ -54,7 +58,7 @@ void TXMetaDataSender::sendMetaData()
 
         // < Moving the file, building the buffer and sending the packet > //
 
-        this->directoryReader.moveFile(TOSEND_PATH, *start, FILES_PATH);
+        this->directoryReader.moveFile(toSendChannelPath, *start, filesChannelPath);
 
         bufferBuilder();
         sendPacket();

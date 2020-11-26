@@ -22,10 +22,8 @@ private:
     int saveToRedis();
     void bufferBuilder();
 
-    void moveFiles(std::string newPath);
-
 public:
-    TXMetaDataSender(std::string IP, unsigned int port);
+    TXMetaDataSender(std::string IP, unsigned int port, std::string workingChannel);
     ~TXMetaDataSender();
 
     void sendMetaData();

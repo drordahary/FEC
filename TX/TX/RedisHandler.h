@@ -20,7 +20,12 @@ public:
 
     void connectToRedis();
     int addToRedis(std::string fileMetaData[]);
+
+    int getDirectoryCount();
+    std::string getChannelName(int channelID);
+
     int getLastFileID();
-    void closeConnection();
     std::string getFileName(int fileID);
+
+    void closeConnection();
 };
