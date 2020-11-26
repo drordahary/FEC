@@ -28,6 +28,7 @@ void RXMetaDataReceiver::receiveMetaData()
         std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), 0);
 
         receivePacket();
+        std::cout << "Received " << this->buffer << std::endl;
         organizeData(this->buffer);
     }
 }
@@ -54,7 +55,7 @@ void RXMetaDataReceiver::organizeData(std::string metaData)
 
     setMetaData();
 
-    createStructure(this->workingChannel, this->fileMetaData->filename);
+    createStructure(FILES_PATH, this->fileMetaData->filename);
     saveToRedis();
 }
 

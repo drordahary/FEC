@@ -1,5 +1,7 @@
 #include "RedisHandler.h"
 
+std::mutex RedisHandler::mLock;
+
 RedisHandler::RedisHandler(int databaseID)
 {
     /* The constructor will initialize the database
@@ -47,15 +49,18 @@ int RedisHandler::addToRedis(std::string fileMetaData[])
        the currentAmount by 1 for the next file
        return: current file's ID */
 
+    mLock.lock();
     int currentFileID = getLastFileID() + 1;
-    std::string command = formatCommand(fileMetaData, currentFileID);
 
-    this->reply = (redisReply *)redisCommand(this->context, command.c_str());
+    this->reply = (redisReply *)redisCommand(this->context, "incr currentAmount");
     checkExecution();
 
     freeReplyObject(this->reply);
+    mLock.unlock();
 
-    this->reply = (redisReply *)redisCommand(this->context, "incr currentAmount");
+    std::string command = formatCommand(fileMetaData, currentFileID);
+
+    this->reply = (redisReply *)redisCommand(this->context, command.c_str());
     checkExecution();
 
     freeReplyObject(this->reply);
@@ -83,6 +88,9 @@ int RedisHandler::getLastFileID()
 
 int RedisHandler::getDirectoryCount()
 {
+    /* The function will return 
+       the amount of channels */
+
     std::string command = "get dirCount";
 
     this->reply = (redisReply *)redisCommand(this->context, command.c_str());

@@ -18,6 +18,8 @@
 #include "RedisHandler.h"
 #include "HierarchyBuilder.h"
 
+#define FILES_PATH "./Files"
+
 typedef struct Socket
 {
     int sc;

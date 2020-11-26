@@ -35,10 +35,10 @@ void preparePorts()
 	}
 
 	std::thread metaDataThread(openMetaDataPorts, std::ref(metaDataPorts), std::ref(channels));
-	std::thread dataThread(openDataPorts, std::ref(dataPorts), std::ref(channels));
+	//std::thread dataThread(openDataPorts, std::ref(dataPorts), std::ref(channels));
 
 	metaDataThread.join();
-	dataThread.join();
+	//dataThread.join();
 
 	redisHandler.closeConnection();
 }
@@ -73,6 +73,8 @@ void openMetaDataPorts(std::vector<int> ports, std::vector<std::string> channels
 		{
 			openThreads.at(i).join();
 			delete receivers[i];
+
+			std::cout << "Port " << PORT_OFFSET + i << " closed" << std::endl;
 		}
 	}
 }
