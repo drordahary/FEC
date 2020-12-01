@@ -28,7 +28,6 @@ void RXMetaDataReceiver::receiveMetaData()
         std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), 0);
 
         receivePacket();
-        std::cout << "Received " << this->buffer << std::endl;
         organizeData(this->buffer);
     }
 }

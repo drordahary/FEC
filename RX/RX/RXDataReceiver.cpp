@@ -74,7 +74,7 @@ void RXDataReceiver::handleFirstPacket(int fileID)
     std::string fileName = this->redisHandler.getFileName(fileID);
 
     this->fileBuilder.closeFile();
-    this->fileBuilder.setFile(this->workingChannel + "/" + fileName);
+    this->fileBuilder.setFile(std::string(FILES_PATH) + "/" + fileName);
 
     currentFileID = fileID;
 }
