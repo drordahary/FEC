@@ -1,7 +1,7 @@
 #include "TXMetaDataSender.h"
 
 TXMetaDataSender::TXMetaDataSender(std::string IP, unsigned int port, std::string workingChannel) : TXSender(IP, port, workingChannel),
-                                                                                                    directoryReader(FILES_PATH),
+                                                                                                    directoryReader(FILES_PATH, true),
                                                                                                     redisHandler(0)
 {
     /* The constructor will first call the base class constructor
@@ -57,7 +57,6 @@ void TXMetaDataSender::sendMetaData()
         this->directoryReader.moveFile(TOSEND_PATH, *start, FILES_PATH);
 
         bufferBuilder();
-        std::cout << "About to send " << *start << std::endl;
         sendPacket();
     }
 

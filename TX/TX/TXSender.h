@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <thread>
+#include <map>
 
 #include "FileReader.h"
 #include "Serializer.h"
@@ -14,7 +15,6 @@
 #include "DirectoryReader.h"
 #include "HierarchyBuilder.h"
 
-#define TOSEND_PATH "./ToSend"
 #define ARCHIVE_PATH "./Archive"
 
 class TXSender
@@ -29,7 +29,7 @@ protected:
     std::string workingChannel;
 
 public:
-    TXSender(std::string IP, unsigned int port, std::string workingChannel);
+    TXSender(std::string ip, unsigned int port, std::string workingChannel);
     ~TXSender();
 
     void sendPacket();

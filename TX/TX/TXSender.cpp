@@ -2,7 +2,7 @@
 
 int TXSender::lastIDUpdated = 0;
 
-TXSender::TXSender(std::string IP, unsigned int port, std::string workingChannel)
+TXSender::TXSender(std::string ip, unsigned int port, std::string workingChannel)
 {
 	/* THe constructor will initialize the socket
        given IP and Port */
@@ -21,7 +21,7 @@ TXSender::TXSender(std::string IP, unsigned int port, std::string workingChannel
 
 	(this->si_other).sin_family = AF_INET;
 	(this->si_other).sin_port = htons(port);
-	inet_pton(AF_INET, IP.c_str(), &((this->si_other).sin_addr));
+	inet_pton(AF_INET, ip.c_str(), &((this->si_other).sin_addr));
 }
 
 TXSender::~TXSender()

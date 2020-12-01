@@ -1,7 +1,7 @@
 #include "TXDataSender.h"
 
 TXDataSender::TXDataSender(std::string IP, unsigned int port, std::string workingChannel) : TXSender(IP, port, workingChannel),
-																							directoryReader(TOSEND_PATH),
+																							directoryReader(TOSEND_PATH, false),
 																							redisHandler(0)
 {
 	/* The constructor will first call the base class constructor
@@ -28,10 +28,12 @@ void TXDataSender::readFile(int amountToRead, int position)
 	this->fileReader.readFile(amountToRead, position, this->buffer);
 }
 
-void TXDataSender::preparePackets(int filesize, int fileID)
+void TXDataSender::preparePackets(int filesize, int fileID, std::string path)
 {
 	/* This function will calculate how much to read from
 	   the file and will prepare the packets to be sent */
+
+	this->fileReader.setFile(path.c_str());
 
 	int position = 0;
 	int amountToRead = 0;
@@ -59,6 +61,8 @@ void TXDataSender::preparePackets(int filesize, int fileID)
 
 		std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
 	}
+
+	this->fileReader.closeFile();
 }
 
 void TXDataSender::prepareFiles()
@@ -85,7 +89,7 @@ void TXDataSender::prepareFiles()
 
 		for (int i = 0; i < SEND_TIMES; i++)
 		{
-			preparePackets(this->fileReader.getFileSize(), currentFileID);
+			//preparePackets(this->fileReader.getFileSize(), currentFileID);
 		}
 
 		this->fileReader.closeFile();

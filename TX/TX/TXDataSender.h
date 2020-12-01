@@ -13,13 +13,12 @@ private:
     RedisHandler redisHandler;
 
     void readFile(int amountToRead, int position);
-
-    void preparePackets(int filesize, int fileID);
     void prepareFiles();
 
 public:
     TXDataSender(std::string IP, unsigned int port, std::string workingChannel);
     ~TXDataSender();
-
+    void preparePackets(int filesize, int fileID, std::string path);
     void startSending();
+    
 };
