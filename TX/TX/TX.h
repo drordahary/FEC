@@ -1,4 +1,5 @@
 #include "ThreadPool.h"
+#include "Settings.h"
 
 #define TOSEND_PATH "./ToSend"
 

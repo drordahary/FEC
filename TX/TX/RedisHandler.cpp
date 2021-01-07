@@ -120,6 +120,22 @@ std::string RedisHandler::getChannelName(int channelID)
     return channelName;
 }
 
+std::string RedisHandler::getValue(std::string key)
+{
+    /* This function will simply get
+       a value from Redis by key */
+
+    std::string command = "get " + key;
+
+    this->reply = (redisReply *)redisCommand(this->context, command.c_str());
+    checkExecution();
+
+    std::string value = this->reply->str;
+    freeReplyObject(this->reply);
+
+    return value;
+}
+
 std::string RedisHandler::formatCommand(std::string fileMetaData[], int fileID)
 {
     /* The function will format the command to be executable.

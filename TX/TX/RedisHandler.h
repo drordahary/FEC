@@ -30,5 +30,7 @@ public:
     int getLastFileID();
     std::string getFileName(int fileID);
 
+    std::string getValue(std::string key);
+
     void closeConnection();
 };

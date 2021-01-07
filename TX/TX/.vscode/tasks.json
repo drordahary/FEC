@@ -17,6 +17,7 @@
 				"TXMetaDataSender.cpp",
 				"HierarchyBuilder.cpp",
 				"ThreadPool.cpp",
+				"Settings.cpp",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}",
 				"-lhiredis",

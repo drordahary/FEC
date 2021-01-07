@@ -2,7 +2,8 @@
 
 int main()
 {
-	preparePorts();
+	Settings settings = Settings();
+	//preparePorts();
 
 	return 0;
 }
