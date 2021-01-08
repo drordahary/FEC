@@ -28,7 +28,7 @@ void TX::preparePorts()
 {
 	/* This function will prepare all the ports and
 	   the additional information to start sending */
-	
+
 	int dirCount = this->redisHandler.getDirectoryCount();
 
 	for (int i = 1; i <= dirCount; i++)
@@ -121,7 +121,7 @@ void TX::workingDataChannel(std::string channel, std::vector<std::string> paths,
 {
 	/* This function will manage all the ports and 
 	   will give each port a specific file to work on */
-	
+
 	this->pool.start(channel, ports);
 
 	for (std::string &path : paths)
