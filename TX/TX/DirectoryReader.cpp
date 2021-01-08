@@ -85,14 +85,16 @@ void DirectoryReader::moveFile(std::string newPath, std::string filePath, std::s
 {
     /* The function will move the files from the 
        current opened directory to the new path */
-
+    printf("ok1");
     std::string pathToFile = containingFolder + "/" + filePath;
     newPath += "/" + filePath;
+    printf("ok2");
 
     if (rename(pathToFile.c_str(), newPath.c_str()) != 0)
     {
         throw("Couldn't move the file to a new location");
     }
+    printf("ok3");
 }
 
 void DirectoryReader::setDirectoryPath(std::string newPath)

@@ -55,7 +55,7 @@ void TXMetaDataSender::sendMetaData()
         // < Moving the file, building the buffer and sending the packet > //
 
         this->directoryReader.moveFile(TOSEND_PATH, *start, FILES_PATH);
-
+        
         bufferBuilder();
         sendPacket();
     }

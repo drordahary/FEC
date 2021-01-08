@@ -37,7 +37,6 @@ void Settings::fetchResults()
     for (int i = 0; i < CONFIGS_COUNT; i++)
     {
         results.push_back(this->redisHandler.getValue(keys[i]));
-        std::cout << results[i] << std::endl;
     }
 
     organizeResults(results);

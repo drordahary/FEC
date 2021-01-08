@@ -1,22 +1,27 @@
 #include "ThreadPool.h"
 
-ThreadPool::ThreadPool(std::string workingChannel, std::vector<int> portRange)
+ThreadPool::ThreadPool()
 {
     /* The constructor will initialize all 
        the threads to start waiting */
 
     this->poolTerminated = false;
-
-    for (auto port = portRange.begin(); port != portRange.end(); port++)
-    {
-        this->pool.push_back(std::thread(&ThreadPool::waitForJob, this, *port));
-    }
 }
 
 ThreadPool::~ThreadPool()
 {
     /* The destructor will automatically 
        deallocate the memory consumed */
+}
+
+void ThreadPool::start(std::string workingChannel, std::vector<int> portRange)
+{
+    /* This function will start all the threads */
+
+    for (auto port = portRange.begin(); port != portRange.end(); port++)
+    {
+        this->pool.push_back(std::thread(&ThreadPool::waitForJob, this, *port));
+    }
 }
 
 void ThreadPool::waitForJob(int port)
