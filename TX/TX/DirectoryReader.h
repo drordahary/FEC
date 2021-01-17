@@ -30,6 +30,8 @@ public:
     DirectoryReader(std::string directoryPath, bool isMetaData);
     ~DirectoryReader();
 
+    void clearPaths();
+
     void iterateDirectory(std::string currentDirectory);
     void setDirectoryPath(std::string newPath);
 

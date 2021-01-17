@@ -29,6 +29,14 @@ DirectoryReader::~DirectoryReader()
     delete this->directory;
 }
 
+void DirectoryReader::clearPaths()
+{
+    /* This function will clear 
+       the paths in the vector */
+
+    this->paths.clear();
+}
+
 void DirectoryReader::iterateDirectory(std::string currentDirectory)
 {
     /* This recursive function will iterate over sub-directories

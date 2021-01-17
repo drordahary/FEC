@@ -95,7 +95,7 @@ void ThreadPool::shutdown()
     std::unique_lock<std::mutex> lock(this->queueMutex);
     poolTerminated = true;
 
-    this->condition.notify_all();
+    //this->condition.notify_all();
 
     for (std::thread &currentThread : this->pool)
     {
