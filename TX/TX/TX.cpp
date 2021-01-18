@@ -39,7 +39,7 @@ void preparePorts()
 
 	redisHandler.closeConnection();
 
-	openMetaDataPorts(metaDataPorts, channels);
+	//openMetaDataPorts(metaDataPorts, channels);
 	openDataPorts(dataPorts, channels, lastUpdatedID);
 }
 
@@ -77,7 +77,7 @@ void openMetaDataPorts(std::vector<int> metaDataPorts, std::vector<std::string> 
 	}
 }
 
-void openDataPorts(std::vector<int> dataPorts, std::vector<std::string> channels, int& lastUpdatedID)
+void openDataPorts(std::vector<int> dataPorts, std::vector<std::string> channels, int lastUpdatedID)
 {
 	/* This function will open the 
 	   data ports to start sending */
@@ -87,6 +87,7 @@ void openDataPorts(std::vector<int> dataPorts, std::vector<std::string> channels
 
 	DirectoryReader dirReader(std::string(TOSEND_PATH) + "/" + channels[0], false);
 	int currentOffset = 0;
+	int currentChannelID = 0;
 
 	for (auto channel = channels.begin(); channel != channels.end(); channel++)
 	{
@@ -96,9 +97,10 @@ void openDataPorts(std::vector<int> dataPorts, std::vector<std::string> channels
 		dirReader.iterateDirectory(std::string(TOSEND_PATH) + "/" + *channel);
 		channelFiles.insert({*channel, dirReader.getPaths()});
 		
-		std::thread dataSender(workingDataChannel, *channel, channelFiles.at(*channel), currentWorkingChannel, std::ref(lastUpdatedID));
+		std::thread dataSender(workingDataChannel, *channel, channelFiles.at(*channel), currentWorkingChannel, lastUpdatedID, currentChannelID);
 		channelsThreads.push_back(std::move(dataSender));
 		dirReader.clearPaths();
+		currentChannelID++;
 	}
 
 	int size = channelsThreads.size();
@@ -112,18 +114,18 @@ void openDataPorts(std::vector<int> dataPorts, std::vector<std::string> channels
 	}
 }
 
-void workingDataChannel(std::string channel, std::vector<std::string> paths, std::vector<int> ports, int& lastUpdatedID)
+void workingDataChannel(std::string channel, std::vector<std::string> paths, std::vector<int> ports, int lastUpdatedID, int channelID)
 {
 	/* This function will manage all the ports and 
 	   will give each port a specific file to work on */
 
-	ThreadPool pool(channel, ports);
+	ThreadPool pool(channel, ports, channelID);
 
 	for (std::string &path : paths)
 	{
 		std::cout << lastUpdatedID << std::endl;
 		lock.lock();
-		pool.addJob(std::string(TOSEND_PATH) + "/" + path + "," + std::to_string(lastUpdatedID));
+		pool.addJob(std::string(TOSEND_PATH) + "/" + path + "," + std::to_string(lastUpdatedID), channelID);
 		lastUpdatedID++;
 		lock.unlock();
 	}

@@ -1,6 +1,6 @@
 #include "ThreadPool.h"
 
-ThreadPool::ThreadPool(std::string workingChannel, std::vector<int> portRange)
+ThreadPool::ThreadPool(std::string workingChannel, std::vector<int> portRange, int channelID)
 {
     /* The constructor will initialize all 
        the threads to start waiting */
@@ -9,7 +9,7 @@ ThreadPool::ThreadPool(std::string workingChannel, std::vector<int> portRange)
 
     for (auto port = portRange.begin(); port != portRange.end(); port++)
     {
-        this->pool.push_back(std::thread(&ThreadPool::waitForJob, this, *port));
+        this->pool.push_back(std::thread(&ThreadPool::waitForJob, this, *port, channelID));
     }
 }
 
@@ -19,7 +19,7 @@ ThreadPool::~ThreadPool()
        deallocate the memory consumed */
 }
 
-void ThreadPool::waitForJob(int port)
+void ThreadPool::waitForJob(int port, int channelID)
 {
     /* The thread will wait on an 
        infinite loop until terminated */
@@ -44,11 +44,11 @@ void ThreadPool::waitForJob(int port)
 
         // Start to work
 
-        startJob(path, port);
+        startJob(path, port, channelID);
     }
 }
 
-void ThreadPool::startJob(std::string data, int port)
+void ThreadPool::startJob(std::string data, int port, int channelID)
 {
     /* This function will call the 
        TX to start sending the file */
@@ -71,10 +71,10 @@ void ThreadPool::startJob(std::string data, int port)
 
     int fileID = std::stoi(splittedData[1]);
 
-    sender.preparePackets(size, fileID, splittedData[0]);
+    sender.preparePackets(size, fileID, splittedData[0], channelID);
 }
 
-void ThreadPool::addJob(std::string data)
+void ThreadPool::addJob(std::string data, int channelID)
 {
     /* The function will add a 
        new job to the queue */
