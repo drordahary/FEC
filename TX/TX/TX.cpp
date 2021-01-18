@@ -39,7 +39,7 @@ void preparePorts()
 
 	redisHandler.closeConnection();
 
-	//openMetaDataPorts(metaDataPorts, channels);
+	openMetaDataPorts(metaDataPorts, channels);
 	openDataPorts(dataPorts, channels, lastUpdatedID);
 }
 

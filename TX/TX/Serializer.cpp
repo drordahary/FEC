@@ -18,10 +18,10 @@ Serializer::~Serializer()
 void Serializer::serializePacket(char buffer[], int fileID, int channelID)
 {
 	/* This function will serialize the buffer so the 
-	   first 10 characters are a hexadecimal value
+	   first 30 characters are a hexadecimals values
 	   and the next 502 characters are the actual message */
 
-	// NOTE: P - Packet, F - File
+	// NOTE: C - Channel, P - Packet, F - File
 
 	std::string hexadecimalP = intToHex(this->packetCount);
 	std::string hexadecimalF = intToHex(fileID);

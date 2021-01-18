@@ -26,7 +26,8 @@ void RedisHandler::connectToRedis()
 
     if (!context)
     {
-        throw("Couldn't connect to redis (Check if the server is up)");
+        std::cout << "Couldn't connect to redis (Check if the server is up)" << std::endl;
+        exit(EXIT_FAILURE);
     }
 
     std::string command = "select " + std::to_string(this->databaseID);
@@ -75,7 +76,8 @@ int RedisHandler::getLastFileID()
 
     if (!this->reply || this->context->err || this->reply->type != REDIS_REPLY_STRING)
     {
-        throw("Couldn't read from redis");
+        std::cout << "Couldn't read from redis" << std::endl;
+        exit(EXIT_FAILURE);
     }
 
     int lastFileID = atoi(this->reply->str);
@@ -95,7 +97,8 @@ int RedisHandler::getDirectoryCount()
 
     if (!this->reply || this->context->err || this->reply->type != REDIS_REPLY_STRING)
     {
-        throw("Couldn't read from redis");
+        std::cout << "Couldn't read from redis" << std::endl;
+        exit(EXIT_FAILURE);
     }
 
     int dirCount = atoi(this->reply->str);
@@ -153,7 +156,8 @@ void RedisHandler::checkExecution()
 
     if (!this->reply || this->context->err)
     {
-        throw("Couldn't execute command");
+        std::cout << "Couldn't execute command" << std::endl;
+        exit(EXIT_FAILURE);
     }
 }
 
