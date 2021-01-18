@@ -45,28 +45,22 @@ void RXDataReceiver::handleData()
        If the current file ID has been changed it'll close
        the current file and will open a new one */
 
+    int channelID = 0;
     int fileID = 0;
     int packetID = 0;
 
     deserializer.deserializePacket(this->buffer);
-
+    
+    channelID = deserializer.getChannelID();
+    std::cout << channelID << std::endl;
     fileID = deserializer.getFileID();
     packetID = deserializer.getPacketID();
 
-    if (currentFileID == 0) // First packet received
-    {
-        handleFirstPacket(fileID);
-    }
-
-    else if (currentFileID != fileID) // File ID changed
-    {
-        handleChangingFile(fileID);
-    }
-
+    handlePacket(fileID, channelID);
     this->fileBuilder.writeToFile(this->buffer);
 }
 
-void RXDataReceiver::handleFirstPacket(int fileID)
+void RXDataReceiver::handlePacket(int fileID, int channelID)
 {
     /* This function will handle only the first packet 
        since there are no file changes yet */
@@ -75,19 +69,6 @@ void RXDataReceiver::handleFirstPacket(int fileID)
 
     this->fileBuilder.closeFile();
     this->fileBuilder.setFile(std::string(FILES_PATH) + "/" + fileName);
-
-    currentFileID = fileID;
-}
-
-void RXDataReceiver::handleChangingFile(int fileID)
-{
-    /* This function will handle a changed file
-       meaning a new file ID have been received */
-
-    std::string fileName = this->redisHandler.getFileName(fileID);
-
-    this->fileBuilder.closeFile();
-    this->fileBuilder.setFile(this->workingChannel + "/" + fileName);
 
     currentFileID = fileID;
 }

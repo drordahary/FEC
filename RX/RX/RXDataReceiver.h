@@ -11,8 +11,7 @@ private:
 
     int currentFileID;
 
-    void handleFirstPacket(int fileID);
-    void handleChangingFile(int fileID);
+    void handlePacket(int fileID, int channelID);
 
 public:
     RXDataReceiver(unsigned int port, std::string workingChannel);
