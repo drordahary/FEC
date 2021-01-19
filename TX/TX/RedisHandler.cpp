@@ -38,36 +38,46 @@ void RedisHandler::connectToRedis()
     freeReplyObject(this->reply);
 }
 
-int RedisHandler::addToRedis(std::string fileMetaData[])
+void RedisHandler::addMetaData(std::map<std::string, std::string> &fields, std::string &key)
 {
-    /* The function will receive a string which
-       is the command and will execute it
-       The file meta data consist of:
-       ID, file name and size.
-       The function will also increament
-       the currentAmount by 1 for the next file
-       return: current file's ID */
+    /* This function will update Redis with a set of files metadata
+       and will use the command HMSET for that operation */
 
-    mLock.lock();
-    int currentFileID = getLastFileID() + 1;
+    std::vector<const char *> argv;
+    std::vector<size_t> arglen;
+
+    char command[] = "HMSET";
+    argv.push_back(command);
+    arglen.push_back(sizeof(command) - 1);
+
+    argv.push_back(key.c_str());
+    arglen.push_back(key.size());
+
+    std::map<std::string, std::string>::const_iterator i;
+    for (i = fields.begin(); i != fields.end(); ++i)
+    {
+        argv.push_back(i->first.c_str());
+        arglen.push_back(i->first.size());
+
+        argv.push_back(i->second.c_str());
+        arglen.push_back(i->second.size());
+    }
+
+    void *r = redisCommandArgv(this->context, argv.size(), &(argv[0]), &(arglen[0]));
+    if (!r)
+    {
+        std::cout << "Couldn't perform operation" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    freeReplyObject(r);
 
     this->reply = (redisReply *)redisCommand(this->context, "incr currentAmount");
     checkExecution();
-
     freeReplyObject(this->reply);
-    mLock.unlock();
-
-    std::string command = formatCommand(fileMetaData, currentFileID);
-
-    this->reply = (redisReply *)redisCommand(this->context, command.c_str());
-    checkExecution();
-
-    freeReplyObject(this->reply);
-
-    return currentFileID;
 }
 
-int RedisHandler::getLastFileID()
+int RedisHandler::getLastChannelID()
 {
     /* The function will return the last
        (largest) file ID number in redis */
@@ -80,10 +90,10 @@ int RedisHandler::getLastFileID()
         exit(EXIT_FAILURE);
     }
 
-    int lastFileID = atoi(this->reply->str);
+    int lastChannelID = atoi(this->reply->str);
 
     freeReplyObject(this->reply);
-    return lastFileID;
+    return lastChannelID;
 }
 
 int RedisHandler::getDirectoryCount()

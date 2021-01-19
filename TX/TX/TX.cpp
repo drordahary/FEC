@@ -35,12 +35,12 @@ void preparePorts()
 	redisHandler.closeConnection();
 
 	redisHandler = RedisHandler(0);
-	int lastUpdatedID = redisHandler.getLastFileID() + 1;
+	int lastUpdatedID = redisHandler.getLastChannelID();
 
 	redisHandler.closeConnection();
 
 	openMetaDataPorts(metaDataPorts, channels);
-	openDataPorts(dataPorts, channels, lastUpdatedID);
+	//openDataPorts(dataPorts, channels, lastUpdatedID);
 }
 
 void openMetaDataPorts(std::vector<int> metaDataPorts, std::vector<std::string> channels)
@@ -52,15 +52,17 @@ void openMetaDataPorts(std::vector<int> metaDataPorts, std::vector<std::string> 
 	std::vector<std::thread> openThreads;
 
 	auto channel = channels.begin();
+	int currentChannelID = 0;
 
 	for (auto port = metaDataPorts.begin(); port != metaDataPorts.end(); port++)
 	{
-		senders.push_back(new TXMetaDataSender(IP, *port, *channel));
+		senders.push_back(new TXMetaDataSender(IP, *port, *channel, currentChannelID));
 
 		std::thread senderThread(&TXMetaDataSender::sendMetaData, senders.back());
 		openThreads.push_back(std::move(senderThread));
 
 		channel++;
+		currentChannelID++;
 
 		std::cout << "Started sending Meta Data on port " << *port << std::endl;
 	}

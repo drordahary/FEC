@@ -18,12 +18,14 @@ private:
     RedisHandler redisHandler;
     FileMetaData *metaData;
     std::vector<std::string> paths;
+    int channelID;
+    std::map<std::string, std::string> fields;
 
-    int saveToRedis();
+    void saveToRedis();
     void bufferBuilder();
 
 public:
-    TXMetaDataSender(std::string IP, unsigned int port, std::string workingChannel);
+    TXMetaDataSender(std::string IP, unsigned int port, std::string workingChannel, int channelID);
     ~TXMetaDataSender();
 
     void sendMetaData();
