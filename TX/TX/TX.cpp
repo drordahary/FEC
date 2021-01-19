@@ -40,7 +40,7 @@ void preparePorts()
 	redisHandler.closeConnection();
 
 	openMetaDataPorts(metaDataPorts, channels);
-	//openDataPorts(dataPorts, channels, lastUpdatedID);
+	openDataPorts(dataPorts, channels, lastUpdatedID);
 }
 
 void openMetaDataPorts(std::vector<int> metaDataPorts, std::vector<std::string> channels)
