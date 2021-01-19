@@ -9,6 +9,7 @@ private:
     Deserializer deserializer;
     RedisHandler redisHandler;
 
+    int currentChannelID;
     int currentFileID;
 
     void handlePacket(int fileID, int channelID);

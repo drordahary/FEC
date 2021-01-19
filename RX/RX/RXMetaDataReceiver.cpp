@@ -42,7 +42,7 @@ void RXMetaDataReceiver::organizeData(std::string metaData)
 
     int i = 0;
 
-    while (((position = metaData.find(delimeter)) != std::string::npos) && i < 2)
+    while (((position = metaData.find(delimeter)) != std::string::npos) && i < 3)
     {
         this->splittedData[i] = metaData.substr(0, position);
         metaData.erase(0, position + 1);
@@ -50,7 +50,7 @@ void RXMetaDataReceiver::organizeData(std::string metaData)
         i++;
     }
 
-    this->splittedData[2] = metaData;
+    this->splittedData[3] = metaData;
 
     setMetaData();
 
@@ -63,9 +63,13 @@ void RXMetaDataReceiver::setMetaData()
     /* The function will set the 
        struct of the meta data */
 
-    this->fileMetaData->ID = std::stoi(this->splittedData[0]);
-    this->fileMetaData->filename = this->splittedData[1];
-    this->fileMetaData->size = std::stoi(this->splittedData[2]);
+    this->channelID = std::stoi(this->splittedData[0]);
+    this->fileMetaData->ID = std::stoi(this->splittedData[1]);
+    this->fileMetaData->filename = this->splittedData[2];
+    this->fileMetaData->size = std::stoi(this->splittedData[3]);
+
+    this->fields.insert({"fileID:" + std::to_string(this->fileMetaData->ID),
+                         this->fileMetaData->filename + ":" + std::to_string(this->fileMetaData->size)});
 }
 
 void RXMetaDataReceiver::saveToRedis()
@@ -73,10 +77,7 @@ void RXMetaDataReceiver::saveToRedis()
     /* This fucntion will handle the received
        data and will send it to Redis */
 
-    std::string parameters[2];
-
-    parameters[0] = this->fileMetaData->filename;
-    parameters[1] = std::to_string(this->fileMetaData->size);
-
-    this->redisHandler.addToRedis(parameters);
+    std::string key = "channelID:" + std::to_string(this->channelID);
+    this->redisHandler.addMetaData(this->fields, key);
+    this->fields.clear();
 }

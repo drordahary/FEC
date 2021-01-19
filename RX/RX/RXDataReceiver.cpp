@@ -8,7 +8,8 @@ RXDataReceiver::RXDataReceiver(unsigned int port, std::string workingChannel) : 
        then the rest of the fields */
 
     this->deserializer = Deserializer();
-    this->currentFileID = 0;
+    this->currentFileID = -1;
+    this->currentChannelID = -1;
 
     std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
 }
@@ -50,25 +51,33 @@ void RXDataReceiver::handleData()
     int packetID = 0;
 
     deserializer.deserializePacket(this->buffer);
-    
+
     channelID = deserializer.getChannelID();
     std::cout << channelID << std::endl;
     fileID = deserializer.getFileID();
     packetID = deserializer.getPacketID();
 
-    handlePacket(fileID, channelID);
+    if (channelID != currentChannelID || fileID != currentFileID)
+    {
+        handlePacket(fileID, channelID);
+        channelID = currentChannelID;
+        fileID = currentFileID;
+    }
+
     this->fileBuilder.writeToFile(this->buffer);
 }
 
 void RXDataReceiver::handlePacket(int fileID, int channelID)
 {
-    /* This function will handle only the first packet 
-       since there are no file changes yet */
+    /* This function will  */
 
-    std::string fileName = this->redisHandler.getFileName(fileID);
+    std::string fileName = this->redisHandler.getFileName(fileID, channelID);
+    int pos = fileName.find(':');
 
-    this->fileBuilder.closeFile();
-    this->fileBuilder.setFile(std::string(FILES_PATH) + "/" + fileName);
-
-    currentFileID = fileID;
+    if (pos != std::string::npos)
+    {
+        fileName = fileName.substr(0, pos);
+        this->fileBuilder.closeFile();
+        this->fileBuilder.setFile(std::string(FILES_PATH) + "/" + fileName);
+    }
 }

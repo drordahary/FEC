@@ -4,6 +4,8 @@
 #include <hiredis/hiredis.h>
 #include <string.h>
 #include <mutex>
+#include <map>
+#include <vector>
 
 class RedisHandler
 {
@@ -23,13 +25,14 @@ public:
 
     void connectToRedis();
 
+    void addMetaData(std::map<std::string, std::string>& fields, std::string& key);
     int addToRedis(std::string fileMetaData[]);
 
     int getDirectoryCount();
     std::string getChannelName(int channelID);
 
-    int getLastFileID();
-    std::string getFileName(int fileID);
+    int getLastChannelID();
+    std::string getFileName(int fileID, int channelID);
 
     void closeConnection();
 };
