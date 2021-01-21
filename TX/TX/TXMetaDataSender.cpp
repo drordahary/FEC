@@ -37,6 +37,7 @@ void TXMetaDataSender::sendMetaData()
 
     for (auto start = this->paths.begin(); start < this->paths.end(); start++)
     {
+        std::cout << *start << std::endl;
         // < Creating the structure in the new folder > //
 
         createStructure(TOSEND_PATH, *start);
@@ -62,6 +63,8 @@ void TXMetaDataSender::sendMetaData()
 
         bufferBuilder();
         sendPacket();
+
+        currentID++;
     }
 
     saveToRedis();
