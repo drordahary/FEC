@@ -11,6 +11,7 @@ class Deserializer
 {
 private:
 	char deserializedBuffer[BUFFER_SIZE - (HEX_LENGTH * 2) + 1];
+	int channelID;
 	int fileID;
 	int packetID;
 
@@ -21,6 +22,7 @@ public:
 	void deserializePacket(char buffer[]);
 	int hexToInt(std::string hexadecimal);
 
+	int getChannelID();
 	int getFileID();
 	int getPacketID();
 };

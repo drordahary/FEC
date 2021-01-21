@@ -25,14 +25,12 @@ private:
     bool poolTerminated;
 
 public:
-    ThreadPool();
+    ThreadPool(std::string workingChannel, std::vector<int> portRange, int channelID);
     ~ThreadPool();
 
-    void start(std::string workingChannel, std::vector<int> portRange);
-
-    void waitForJob(int port);
-    void startJob(std::string data, int port);
-    void addJob(std::string data);
+    void waitForJob(int port, int channelID);
+    void startJob(std::string data, int port, int channelID);
+    void addJob(std::string data, int channelID);
 
     void shutdown();
 };

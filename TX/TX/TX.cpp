@@ -2,29 +2,13 @@
 
 int main()
 {
-	TX tx;
-	tx.preparePorts();
+	Settings settings = Settings();
+	preparePorts();
 
 	return 0;
 }
 
-TX::TX() : redisHandler(2)
-{
-	/* This constructor will initialize 
-	   all the necessary fields */
-
-	this->settings = Settings();
-}
-
-TX::~TX()
-{
-	/* The destructor will deallocate the memory and 
-	   will close the connection to Redis */
-
-	this->redisHandler.closeConnection();
-}
-
-void TX::preparePorts()
+void preparePorts()
 {
 	/* This function will prepare all the ports and
 	   the additional information to start sending */
@@ -42,7 +26,10 @@ void TX::preparePorts()
 		}
 	}
 
-	this->redisHandler.closeConnection();
+	redisHandler.closeConnection();
+
+	redisHandler = RedisHandler(0);
+	int lastUpdatedID = redisHandler.getLastChannelID();
 
 	this->redisHandler = RedisHandler(0);
 	int lastUpdatedID = this->redisHandler.getLastFileID() + 1;
@@ -59,16 +46,20 @@ void TX::openMetaDataPorts()
 	std::vector<TXMetaDataSender *> senders;
 	std::vector<std::thread> openThreads;
 
-	auto channel = this->channels.begin();
+	auto channel = channels.begin();
+	int currentChannelID = 0;
 
 	for (auto port = this->metaDataPorts.begin(); port != this->metaDataPorts.end(); port++)
 	{
-		senders.push_back(new TXMetaDataSender(IP, *port, *channel));
+		senders.push_back(new TXMetaDataSender(IP, *port, *channel, currentChannelID));
 
 		std::thread senderThread(&TXMetaDataSender::sendMetaData, senders.back());
 		openThreads.push_back(std::move(senderThread));
 
 		channel++;
+		currentChannelID++;
+
+		std::cout << "Started sending Meta Data on port " << *port << std::endl;
 	}
 
 	int size = openThreads.size();
@@ -93,6 +84,7 @@ void TX::openDataPorts(int lastUpdatedID)
 
 	DirectoryReader dirReader(std::string(TOSEND_PATH) + "/" + channels[0], false);
 	int currentOffset = 0;
+	int currentChannelID = 0;
 
 	for (auto channel = this->channels.begin(); channel != this->channels.end(); channel++)
 	{
@@ -101,9 +93,11 @@ void TX::openDataPorts(int lastUpdatedID)
 
 		dirReader.iterateDirectory(std::string(TOSEND_PATH) + "/" + *channel);
 		channelFiles.insert({*channel, dirReader.getPaths()});
-
-		std::thread dataSender(&TX::workingDataChannel, this, *channel, channelFiles.at(*channel), currentWorkingChannel, lastUpdatedID);
+		
+		std::thread dataSender(workingDataChannel, *channel, channelFiles.at(*channel), currentWorkingChannel, lastUpdatedID, currentChannelID);
 		channelsThreads.push_back(std::move(dataSender));
+		dirReader.clearPaths();
+		currentChannelID++;
 	}
 
 	int size = channelsThreads.size();
@@ -117,17 +111,20 @@ void TX::openDataPorts(int lastUpdatedID)
 	}
 }
 
-void TX::workingDataChannel(std::string channel, std::vector<std::string> paths, std::vector<int> ports, int lastUpdatedID)
+void workingDataChannel(std::string channel, std::vector<std::string> paths, std::vector<int> ports, int lastUpdatedID, int channelID)
 {
 	/* This function will manage all the ports and 
 	   will give each port a specific file to work on */
 
-	this->pool.start(channel, ports);
+	ThreadPool pool(channel, ports, channelID);
 
 	for (std::string &path : paths)
 	{
-		this->pool.addJob(std::string(TOSEND_PATH) + "/" + path + "," + std::to_string(lastUpdatedID));
+		std::cout << lastUpdatedID << std::endl;
+		lock.lock();
+		pool.addJob(std::string(TOSEND_PATH) + "/" + path + "," + std::to_string(lastUpdatedID), channelID);
 		lastUpdatedID++;
+		lock.unlock();
 	}
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME_MS));

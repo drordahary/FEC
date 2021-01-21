@@ -43,5 +43,8 @@ void FileBuilder::closeFile()
 	/* This function will be called if the program
 	   crashes or the program finished */
 
-	this->file.close();
+	if (this->file.is_open())
+	{
+		this->file.close();
+	}
 }

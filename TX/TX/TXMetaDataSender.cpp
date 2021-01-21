@@ -1,15 +1,16 @@
 #include "TXMetaDataSender.h"
 
-TXMetaDataSender::TXMetaDataSender(std::string IP, unsigned int port, std::string workingChannel) : TXSender(IP, port, workingChannel),
-                                                                                                    directoryReader(FILES_PATH, true),
-                                                                                                    redisHandler(0)
+TXMetaDataSender::TXMetaDataSender(std::string IP, unsigned int port, std::string workingChannel, int channelID) : TXSender(IP, port, workingChannel),
+                                                                                                                   directoryReader(FILES_PATH, true),
+                                                                                                                   redisHandler(0)
 {
     /* The constructor will first call the base class constructor
        in order to initialize the socket, then the object
        directoryReader and redisHandler and then the rest of the fields */
 
     this->metaData = new FileMetaData();
-    TXSender::lastIDUpdated = this->redisHandler.getLastFileID() + 1;
+    this->channelID = channelID;
+    TXSender::lastIDUpdated = this->redisHandler.getLastChannelID();
 }
 
 TXMetaDataSender::~TXMetaDataSender()
@@ -32,9 +33,11 @@ void TXMetaDataSender::sendMetaData()
 
     std::string currentPath = "";
     std::string parameters[2];
+    int currentID = 0;
 
     for (auto start = this->paths.begin(); start < this->paths.end(); start++)
     {
+        std::cout << *start << std::endl;
         // < Creating the structure in the new folder > //
 
         createStructure(TOSEND_PATH, *start);
@@ -48,9 +51,11 @@ void TXMetaDataSender::sendMetaData()
 
         this->metaData->filePath = *start;
         this->metaData->size = this->fileReader.getFileSize();
+        this->fields.insert({"fileID:" + std::to_string(currentID),
+                             *start + ":" + std::to_string(this->metaData->size)});
 
         this->fileReader.closeFile();
-        this->metaData->ID = saveToRedis();
+        this->metaData->ID = currentID;
 
         // < Moving the file, building the buffer and sending the packet > //
 
@@ -58,25 +63,23 @@ void TXMetaDataSender::sendMetaData()
         
         bufferBuilder();
         sendPacket();
+
+        currentID++;
     }
 
+    saveToRedis();
     this->redisHandler.closeConnection();
 }
 
-int TXMetaDataSender::saveToRedis()
+void TXMetaDataSender::saveToRedis()
 {
     /* The function will use the RedisHandler object
        to save the file's meta data and will return
        the current file's ID */
 
-    std::string parameters[2];
-
-    parameters[0] = this->metaData->filePath;
-    parameters[1] = std::to_string(this->metaData->size);
-
-    int ID = this->redisHandler.addToRedis(parameters);
-
-    return ID;
+    std::string key = "channelID:" + std::to_string(this->channelID);
+    this->redisHandler.addMetaData(this->fields, key);
+    this->fields.clear();
 }
 
 void TXMetaDataSender::bufferBuilder()
@@ -87,6 +90,7 @@ void TXMetaDataSender::bufferBuilder()
 
     std::string metaDataBuffer = "";
 
+    metaDataBuffer += std::to_string(this->channelID) + ",";
     metaDataBuffer += std::to_string(this->metaData->ID) + ",";
     metaDataBuffer += this->metaData->filePath + ",";
     metaDataBuffer += std::to_string(this->metaData->size);

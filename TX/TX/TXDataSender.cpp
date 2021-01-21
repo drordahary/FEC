@@ -28,7 +28,7 @@ void TXDataSender::readFile(int amountToRead, int position)
 	this->fileReader.readFile(amountToRead, position, this->buffer);
 }
 
-void TXDataSender::preparePackets(int filesize, int fileID, std::string path)
+void TXDataSender::preparePackets(int filesize, int fileID, std::string path, int channelID)
 {
 	/* This function will calculate how much to read from
 	   the file and will prepare the packets to be sent */
@@ -41,9 +41,9 @@ void TXDataSender::preparePackets(int filesize, int fileID, std::string path)
 
 	while (leftToRead > 0)
 	{
-		if (leftToRead >= BUFFER_SIZE - (HEX_LENGTH * 2))
+		if (leftToRead >= BUFFER_SIZE - (HEX_LENGTH * 3))
 		{
-			amountToRead = BUFFER_SIZE - (HEX_LENGTH * 2);
+			amountToRead = BUFFER_SIZE - (HEX_LENGTH * 3);
 		}
 
 		else
@@ -52,7 +52,7 @@ void TXDataSender::preparePackets(int filesize, int fileID, std::string path)
 		}
 
 		readFile(amountToRead, position);
-		this->serializer.serializePacket(this->buffer, fileID);
+		this->serializer.serializePacket(this->buffer, fileID, channelID);
 
 		sendPacket();
 

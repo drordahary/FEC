@@ -15,22 +15,25 @@ Serializer::~Serializer()
 	   all the allocated memory of the object */
 }
 
-void Serializer::serializePacket(char buffer[], int fileID)
+void Serializer::serializePacket(char buffer[], int fileID, int channelID)
 {
 	/* This function will serialize the buffer so the 
-	   first 10 characters are a hexadecimal value
+	   first 30 characters are a hexadecimals values
 	   and the next 502 characters are the actual message */
 
-	// NOTE: P - Packet, F - File
+	// NOTE: C - Channel, P - Packet, F - File
 
 	std::string hexadecimalP = intToHex(this->packetCount);
 	std::string hexadecimalF = intToHex(fileID);
+	std::string hexadecimalC = intToHex(channelID);
 
-	std::copy(hexadecimalF.c_str(), hexadecimalF.c_str() + HEX_LENGTH, this->serializedBuffer);
+	std::copy(hexadecimalC.c_str(), hexadecimalC.c_str() + HEX_LENGTH, this->serializedBuffer);
+	strncat(this->serializedBuffer, hexadecimalF.c_str(), HEX_LENGTH);
 	strncat(this->serializedBuffer, hexadecimalP.c_str(), HEX_LENGTH);
 
-	strncat(this->serializedBuffer, buffer, BUFFER_SIZE + 1 - (HEX_LENGTH * 2));
+	strncat(this->serializedBuffer, buffer, BUFFER_SIZE + 1 - (HEX_LENGTH * 3));
 	std::copy(this->serializedBuffer, this->serializedBuffer + BUFFER_SIZE + 1, buffer);
+	std::cout << this->serializedBuffer << std::endl;
 
 	std::fill(this->serializedBuffer, this->serializedBuffer + BUFFER_SIZE + 1, '\0');
 	this->packetCount++;
