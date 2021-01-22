@@ -33,7 +33,6 @@ void Serializer::serializePacket(char buffer[], int fileID, int channelID)
 
 	strncat(this->serializedBuffer, buffer, BUFFER_SIZE + 1 - (HEX_LENGTH * 3));
 	std::copy(this->serializedBuffer, this->serializedBuffer + BUFFER_SIZE + 1, buffer);
-	std::cout << this->serializedBuffer << std::endl;
 
 	std::fill(this->serializedBuffer, this->serializedBuffer + BUFFER_SIZE + 1, '\0');
 	this->packetCount++;
