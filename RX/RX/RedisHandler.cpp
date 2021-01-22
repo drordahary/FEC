@@ -40,7 +40,8 @@ void RedisHandler::connectToRedis()
     freeReplyObject(this->reply);
 }
 
-void RedisHandler::addMetaData(std::map<std::string, std::string> &fields, std::string &key)
+void RedisHandler::addMetaData(std::map<std::string, std::string> &fields, std::string &key,
+                               bool channelIDAdded)
 {
     /* This function will update Redis with a set of files metadata
        and will use the command HMSET for that operation */
@@ -74,9 +75,12 @@ void RedisHandler::addMetaData(std::map<std::string, std::string> &fields, std::
 
     freeReplyObject(r);
 
-    this->reply = (redisReply *)redisCommand(this->context, "incr currentAmount");
-    checkExecution();
-    freeReplyObject(this->reply);
+    if (!channelIDAdded)
+    {
+        this->reply = (redisReply *)redisCommand(this->context, "incr currentAmount");
+        checkExecution();
+        freeReplyObject(this->reply);
+    }
 }
 
 int RedisHandler::getLastChannelID()
@@ -173,6 +177,22 @@ void RedisHandler::checkExecution()
         std::cout << "Couldn't execute command" << std::endl;
         exit(EXIT_FAILURE);
     }
+}
+
+std::string RedisHandler::getValue(std::string key)
+{
+    /* This function will simply get
+       a value from Redis by key */
+
+    std::string command = "get " + key;
+
+    this->reply = (redisReply *)redisCommand(this->context, command.c_str());
+    checkExecution();
+
+    std::string value = this->reply->str;
+    freeReplyObject(this->reply);
+
+    return value;
 }
 
 void RedisHandler::closeConnection()

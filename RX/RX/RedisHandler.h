@@ -25,7 +25,8 @@ public:
 
     void connectToRedis();
 
-    void addMetaData(std::map<std::string, std::string>& fields, std::string& key);
+    void addMetaData(std::map<std::string, std::string> &fields, std::string &key,
+                     bool channelIDAdded);
     int addToRedis(std::string fileMetaData[]);
 
     int getDirectoryCount();
@@ -33,6 +34,8 @@ public:
 
     int getLastChannelID();
     std::string getFileName(int fileID, int channelID);
+
+    std::string getValue(std::string key);
 
     void closeConnection();
 };

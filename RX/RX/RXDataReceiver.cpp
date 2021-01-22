@@ -53,7 +53,6 @@ void RXDataReceiver::handleData()
     deserializer.deserializePacket(this->buffer);
 
     channelID = deserializer.getChannelID();
-    std::cout << channelID << std::endl;
     fileID = deserializer.getFileID();
     packetID = deserializer.getPacketID();
 

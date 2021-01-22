@@ -7,6 +7,7 @@ RXMetaDataReceiver::RXMetaDataReceiver(unsigned int port, std::string workingCha
        initialize connection and then connect to Redis */
 
     this->fileMetaData = new FileMetaData();
+    this->channelIDAdded = false;
 }
 
 RXMetaDataReceiver::~RXMetaDataReceiver()
@@ -56,6 +57,7 @@ void RXMetaDataReceiver::organizeData(std::string metaData)
 
     createStructure(FILES_PATH, this->fileMetaData->filename);
     saveToRedis();
+    runTime++;
 }
 
 void RXMetaDataReceiver::setMetaData()
@@ -78,6 +80,7 @@ void RXMetaDataReceiver::saveToRedis()
        data and will send it to Redis */
 
     std::string key = "channelID:" + std::to_string(this->channelID);
-    this->redisHandler.addMetaData(this->fields, key);
+    this->redisHandler.addMetaData(this->fields, key, this->channelIDAdded);
     this->fields.clear();
+    channelIDAdded = true;
 }

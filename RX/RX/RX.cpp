@@ -5,23 +5,33 @@ int main()
 	/* This main function will initialize connections
 	   and will try to create the sockets */
 
-	preparePorts();
+	RX rx = RX();
+	rx.preparePorts();
 
 	return 0;
 }
 
-void preparePorts()
+RX::RX() : redisHandler(2)
+{
+	/* This constructor will initialize
+	   Redis handler and Settings */
+}
+
+RX::~RX()
+{
+	/* The destructor will close the 
+	   connection to the database */
+
+	this->redisHandler.closeConnection();
+}
+
+void RX::preparePorts()
 {
 	/* The function will prepare
 	   all the ports needed */
 
 	RedisHandler redisHandler = RedisHandler(2);
 	int dirCount = redisHandler.getDirectoryCount();
-
-	std::vector<int> metaDataPorts;
-	std::vector<int> dataPorts;
-
-	std::vector<std::string> channels;
 
 	for (int i = 1; i <= dirCount; i++)
 	{
@@ -34,16 +44,14 @@ void preparePorts()
 		}
 	}
 
-	std::thread metaDataThread(openMetaDataPorts, std::ref(metaDataPorts), std::ref(channels));
-	std::thread dataThread(openDataPorts, std::ref(dataPorts), std::ref(channels));
+	std::thread metaDataThread(&RX::openMetaDataPorts, this);
+	std::thread dataThread(&RX::openDataPorts, this);
 
 	metaDataThread.join();
 	dataThread.join();
-
-	redisHandler.closeConnection();
 }
 
-void openMetaDataPorts(std::vector<int> ports, std::vector<std::string> channels)
+void RX::openMetaDataPorts()
 {
 	/* The function will start the meta data listeners
 	   on a specific port for each listener */
@@ -53,7 +61,7 @@ void openMetaDataPorts(std::vector<int> ports, std::vector<std::string> channels
 
 	auto channel = channels.begin();
 
-	for (auto port = ports.begin(); port != ports.end(); port++)
+	for (auto port = metaDataPorts.begin(); port != metaDataPorts.end(); port++)
 	{
 		receivers.push_back(new RXMetaDataReceiver(*port, *channel));
 
@@ -77,7 +85,7 @@ void openMetaDataPorts(std::vector<int> ports, std::vector<std::string> channels
 	}
 }
 
-void openDataPorts(std::vector<int> ports, std::vector<std::string> channels)
+void RX::openDataPorts()
 {
 	/* The function will start the data listeners
 	   on a specific port for each listener */
@@ -86,7 +94,7 @@ void openDataPorts(std::vector<int> ports, std::vector<std::string> channels)
 	std::vector<std::thread> openThreads;
 
 	auto channel = channels.begin();
-	auto port = ports.begin();
+	auto port = dataPorts.begin();
 
 	for (auto channel = channels.begin(); channel != channels.end(); channel++)
 	{

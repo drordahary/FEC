@@ -17,6 +17,8 @@ private:
     FileMetaData *fileMetaData;
     std::map<std::string, std::string> fields;
     int channelID;
+    int runTime;
+    bool channelIDAdded;
 
     RedisHandler redisHandler;
     void saveToRedis();

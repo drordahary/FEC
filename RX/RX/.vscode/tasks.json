@@ -15,6 +15,7 @@
 				"RedisHandler.cpp",
 				"RXMetaDataReceiver.cpp",
 				"HierarchyBuilder.cpp",
+				"Settings.cpp",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}",
 				"-lhiredis",
