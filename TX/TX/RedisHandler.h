@@ -33,6 +33,7 @@ public:
     std::string getFileName(int fileID);
 
     std::string getValue(std::string key);
+    void setChannels(std::vector<std::string>& channels);
 
     void closeConnection();
 };

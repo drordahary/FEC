@@ -28,7 +28,7 @@ void TXMetaDataSender::sendMetaData()
        to send and also will call a function that will
        save the meta data to redis */
 
-    this->directoryReader.iterateDirectory(std::string(FILES_PATH) + "/" + this->workingChannel);
+    this->directoryReader.iterateDirectory(this->workingChannel);
     paths = this->directoryReader.getPaths();
 
     std::string currentPath = "";
@@ -43,7 +43,7 @@ void TXMetaDataSender::sendMetaData()
 
         // < Building the path and set the file to use > //
 
-        currentPath = std::string(FILES_PATH) + "/" + *start;
+        currentPath = this->workingChannel + "/" + *start;
         this->fileReader.setFile(currentPath.c_str());
 
         // < Set the meta data and closing the file > //

@@ -28,20 +28,22 @@ void TX::preparePorts()
 	   the additional information to start sending */
 
 	RedisHandler redisHandler(2);
+	this->configs = this->settings.getConfigs();
 
-	int dirCount = redisHandler.getDirectoryCount();
-	int multiplier = dirCount / PORTS_PER_CHANNEL + 1;
+	int dirCount = this->configs->channels.size();
+	int multiplier = dirCount / this->configs->portsPerChannel + 1;
 
 	for (int i = 1; i <= dirCount; i++)
 	{
-		channels.push_back(redisHandler.getChannelName(i));
-		metaDataPorts.push_back(PORT_OFFSET + i);
+		channels.push_back(this->configs->channels[i - 1]);
+		metaDataPorts.push_back(this->configs->portOffset + i);
 
-		for (int j = 0; j < PORTS_PER_CHANNEL; j++)
+		for (int j = 0; j < this->configs->portsPerChannel; j++)
 		{
-			dataPorts.push_back(PORT_OFFSET + (multiplier * PORTS_PER_CHANNEL) + j);
+			dataPorts.push_back(this->configs->portOffset +
+								(multiplier * this->configs->portsPerChannel) + j);
 		}
-		
+
 		multiplier++;
 	}
 

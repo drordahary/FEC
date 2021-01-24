@@ -33,12 +33,14 @@ void Settings::fetchResults()
             "portsPerChannel",
             "timesToSend",
             "bufferSize"};
+    std::string channelsKey = "channels";
 
     for (int i = 0; i < CONFIGS_COUNT; i++)
     {
         results.push_back(this->redisHandler.getValue(keys[i]));
     }
 
+    this->redisHandler.setChannels(this->configs->channels);
     organizeResults(results);
 }
 

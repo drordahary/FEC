@@ -16,6 +16,7 @@ private:
     std::vector<int> metaDataPorts;
     std::vector<int> dataPorts;
     std::vector<std::string> channels;
+    Configurations *configs;
 
 public:
     TX();

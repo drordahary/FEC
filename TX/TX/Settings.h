@@ -15,6 +15,7 @@ typedef struct Configurations
     int portsPerChannel;
     int timesToSend;
     int bufferSize;
+    std::vector<std::string> channels;
 
 } Configurations;
 
