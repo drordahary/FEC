@@ -32,6 +32,7 @@ void RX::preparePorts()
 
 	RedisHandler redisHandler = RedisHandler(2);
 	int dirCount = redisHandler.getDirectoryCount();
+	int multiplier = dirCount / PORTS_PER_CHANNEL + 1;
 
 	for (int i = 1; i <= dirCount; i++)
 	{
@@ -40,8 +41,10 @@ void RX::preparePorts()
 
 		for (int j = 0; j < PORTS_PER_CHANNEL; j++)
 		{
-			dataPorts.push_back(PORT_OFFSET + (i * PORTS_PER_CHANNEL) + j);
+			dataPorts.push_back(PORT_OFFSET + (multiplier * PORTS_PER_CHANNEL) + j);
 		}
+
+		multiplier++;
 	}
 
 	std::thread metaDataThread(&RX::openMetaDataPorts, this);
