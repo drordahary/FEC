@@ -30,6 +30,7 @@ void TX::preparePorts()
 	RedisHandler redisHandler(2);
 
 	int dirCount = redisHandler.getDirectoryCount();
+	int multiplier = dirCount / PORTS_PER_CHANNEL + 1;
 
 	for (int i = 1; i <= dirCount; i++)
 	{
@@ -38,8 +39,10 @@ void TX::preparePorts()
 
 		for (int j = 0; j < PORTS_PER_CHANNEL; j++)
 		{
-			dataPorts.push_back(PORT_OFFSET + (i * PORTS_PER_CHANNEL) + j);
+			dataPorts.push_back(PORT_OFFSET + (multiplier * PORTS_PER_CHANNEL) + j);
 		}
+		
+		multiplier++;
 	}
 
 	redisHandler.closeConnection();
