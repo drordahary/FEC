@@ -25,6 +25,7 @@ private:
     std::string directoryPath;
     Directory *directory;
     std::vector<std::string> paths;
+    std::string path;
 
 public:
     DirectoryReader(std::string directoryPath, bool isMetaData);
@@ -38,4 +39,5 @@ public:
     void moveFile(std::string newPath, std::string filePath, std::string contatingFolder);
 
     std::vector<std::string> getPaths();
+    void loadPath(std::string path);
 };

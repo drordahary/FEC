@@ -61,7 +61,7 @@ void DirectoryReader::iterateDirectory(std::string currentDirectory)
 
             if (this->isMetaData)
             {
-                pos = strnlen(FILES_PATH, MAX_LENGTH);
+                pos = strnlen(this->path.c_str(), MAX_LENGTH);
             }
 
             else
@@ -99,7 +99,8 @@ void DirectoryReader::moveFile(std::string newPath, std::string filePath, std::s
 
     if (rename(pathToFile.c_str(), newPath.c_str()) != 0)
     {
-        throw("Couldn't move the file to a new location");
+        std::cout << "Couldn't move the file to a new location" << std::endl;
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -117,4 +118,12 @@ std::vector<std::string> DirectoryReader::getPaths()
        vector containing the paths */
 
     return this->paths;
+}
+
+void DirectoryReader::loadPath(std::string path)
+{
+    /* This function will load a path to use as 
+       an offset to files on the channel */
+    
+    this->path = path;
 }

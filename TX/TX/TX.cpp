@@ -55,7 +55,7 @@ void TX::preparePorts()
 	redisHandler.closeConnection();
 
 	openMetaDataPorts();
-	openDataPorts();
+	//openDataPorts();
 }
 
 void TX::openMetaDataPorts()
