@@ -23,13 +23,14 @@ protected:
     int sc;
     struct sockaddr_in si_other;
     int slen;
+    int bufferSize;
 
-    char buffer[BUFFER_SIZE + 1];
+    char *buffer;
 
     std::string workingChannel;
 
 public:
-    TXSender(std::string ip, unsigned int port, std::string workingChannel);
+    TXSender(std::string ip, unsigned int port, std::string workingChannel, int bufferSize);
     ~TXSender();
 
     void sendPacket();

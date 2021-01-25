@@ -2,10 +2,6 @@
 #include "Settings.h"
 
 #define TOSEND_PATH "./ToSend"
-
-#define IP "127.0.0.1"
-
-#define PORT_OFFSET 50000
 #define SLEEP_TIME_MS 500
 
 class TX

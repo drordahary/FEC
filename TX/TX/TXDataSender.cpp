@@ -1,14 +1,13 @@
 #include "TXDataSender.h"
 
-TXDataSender::TXDataSender(std::string IP, unsigned int port, std::string workingChannel) : TXSender(IP, port, workingChannel),
-																							directoryReader(TOSEND_PATH, false),
-																							redisHandler(0)
+TXDataSender::TXDataSender(std::string IP, unsigned int port, std::string workingChannel, int bufferSize) : TXSender(IP, port, workingChannel, bufferSize),
+																											directoryReader(false),
+																											redisHandler(0),
+																											serializer(bufferSize)
 {
 	/* The constructor will first call the base class constructor
        in order to initialize the socket, then the object
        directoryReader and then the rest of the fields */
-
-	this->serializer = Serializer();
 }
 
 TXDataSender::~TXDataSender()
@@ -41,9 +40,9 @@ void TXDataSender::preparePackets(int filesize, int fileID, std::string path, in
 
 	while (leftToRead > 0)
 	{
-		if (leftToRead >= BUFFER_SIZE - (HEX_LENGTH * 3))
+		if (leftToRead >= this->bufferSize - (HEX_LENGTH * 3))
 		{
-			amountToRead = BUFFER_SIZE - (HEX_LENGTH * 3);
+			amountToRead = this->bufferSize - (HEX_LENGTH * 3);
 		}
 
 		else
@@ -59,7 +58,7 @@ void TXDataSender::preparePackets(int filesize, int fileID, std::string path, in
 		position += amountToRead;
 		leftToRead -= amountToRead;
 
-		std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
+		std::fill(this->buffer, this->buffer + (this->bufferSize + 1), '\0');
 	}
 
 	this->fileReader.closeFile();

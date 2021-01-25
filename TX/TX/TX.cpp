@@ -55,7 +55,7 @@ void TX::preparePorts()
 	redisHandler.closeConnection();
 
 	openMetaDataPorts();
-	//openDataPorts();
+	openDataPorts();
 }
 
 void TX::openMetaDataPorts()
@@ -71,7 +71,7 @@ void TX::openMetaDataPorts()
 
 	for (auto port = metaDataPorts.begin(); port != metaDataPorts.end(); port++)
 	{
-		senders.push_back(new TXMetaDataSender(IP, *port, *channel, currentChannelID));
+		senders.push_back(new TXMetaDataSender(this->configs->dstIP, *port, *channel, currentChannelID, this->configs->bufferSize));
 
 		std::thread senderThread(&TXMetaDataSender::sendMetaData, senders.back());
 		openThreads.push_back(std::move(senderThread));
@@ -100,20 +100,24 @@ void TX::openDataPorts()
 	std::vector<std::thread> channelsThreads;
 	std::map<std::string, std::vector<std::string>> channelFiles;
 
-	DirectoryReader dirReader(std::string(TOSEND_PATH) + "/" + channels[0], false);
+	DirectoryReader dirReader(false);
 	int currentOffset = 0;
 	int currentChannelID = 0;
 
+	std::string trimmedPath;
+	std::string channelPath = std::string(TOSEND_PATH) + "/";
+
 	for (auto channel = channels.begin(); channel != channels.end(); channel++)
 	{
+		trimmedPath = channel->substr(channel->find_last_of('/') + 1, channel->length());
 		std::vector<int> currentWorkingChannel(dataPorts.begin() + currentOffset,
-											   dataPorts.begin() + currentOffset + PORTS_PER_CHANNEL);
-		currentOffset += PORTS_PER_CHANNEL;
+											   dataPorts.begin() + currentOffset + this->configs->portsPerChannel);
+		currentOffset += this->configs->portsPerChannel;
 
-		dirReader.iterateDirectory(std::string(TOSEND_PATH) + "/" + *channel);
+		dirReader.iterateDirectory(channelPath + trimmedPath);
 		channelFiles.insert({*channel, dirReader.getPaths()});
 
-		std::thread dataSender(&TX::workingDataChannel, this, *channel, channelFiles.at(*channel),
+		std::thread dataSender(&TX::workingDataChannel, this, channelPath + trimmedPath, channelFiles.at(*channel),
 							   currentWorkingChannel, currentChannelID);
 
 		channelsThreads.push_back(std::move(dataSender));
@@ -138,7 +142,7 @@ void TX::workingDataChannel(std::string channel, std::vector<std::string> paths,
 	/* This function will manage all the ports and 
 	   will give each port a specific file to work on */
 
-	ThreadPool pool(channel, ports, channelID);
+	ThreadPool pool(this->configs->dstIP, channel, ports, channelID, this->configs->bufferSize);
 	int lastUpdatedID = 0;
 
 	for (std::string &path : paths)

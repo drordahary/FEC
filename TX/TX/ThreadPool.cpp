@@ -1,11 +1,15 @@
 #include "ThreadPool.h"
 
-ThreadPool::ThreadPool(std::string workingChannel, std::vector<int> portRange, int channelID)
+ThreadPool::ThreadPool(std::string destIP, std::string workingChannel, std::vector<int> portRange,
+                       int channelID, int bufferSize)
 {
     /* The constructor will initialize all 
        the threads to start waiting */
 
     this->poolTerminated = false;
+    this->bufferSize = bufferSize;
+    this->destIP = destIP;
+    this->workingChannel = workingChannel;
 
     for (auto port = portRange.begin(); port != portRange.end(); port++)
     {
@@ -53,14 +57,14 @@ void ThreadPool::startJob(std::string data, int port, int channelID)
     /* This function will call the 
        TX to start sending the file */
 
-    TXDataSender sender(LOCAL_IP, port, this->workingChannel);
+    TXDataSender sender(this->destIP, port, this->workingChannel, this->bufferSize);
     FileReader reader;
 
     std::string splittedData[2];
 
     char delimeter = ',';
     size_t position = data.find(delimeter);
-    
+
     splittedData[0] = data.substr(0, position);
     data.erase(0, position + 1);
     splittedData[1] = data;

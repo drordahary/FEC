@@ -6,16 +6,16 @@
 #include <string.h>
 
 #define HEX_LENGTH 10
-#define BUFFER_SIZE 512
 
 class Serializer
 {
 private:
-	char serializedBuffer[BUFFER_SIZE + 1];
+	char *serializedBuffer;
 	int packetCount;
+	int bufferSize;
 
 public:
-	Serializer();
+	Serializer(int bufferSize);
 	~Serializer();
 
 	void serializePacket(char buffer[], int fileID, int channelID);

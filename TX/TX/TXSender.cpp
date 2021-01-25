@@ -2,14 +2,17 @@
 
 int TXSender::lastIDUpdated = 0;
 
-TXSender::TXSender(std::string ip, unsigned int port, std::string workingChannel)
+TXSender::TXSender(std::string ip, unsigned int port, std::string workingChannel, int bufferSize)
 {
 	/* THe constructor will initialize the socket
        given IP and Port */
 
 	this->workingChannel = workingChannel;
+	this->bufferSize = bufferSize;
 
-	std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
+	this->buffer = new char[bufferSize + 1];
+
+	std::fill(this->buffer, this->buffer + (bufferSize + 1), '\0');
 
 	this->slen = sizeof(this->si_other);
 
@@ -28,6 +31,8 @@ TXSender::~TXSender()
 {
 	/* The destructor will delete automatically
 	   all the allocated memory of the object */
+
+	delete this->buffer;
 }
 
 void TXSender::sendPacket()
@@ -35,10 +40,10 @@ void TXSender::sendPacket()
 	/* This function simply, just receive 
        buffer as a parameter and send it */
 
-	if (sendto(this->sc, this->buffer, BUFFER_SIZE + 1, 0, (struct sockaddr *)&(this->si_other), sizeof(this->si_other)) == -1)
+	if (sendto(this->sc, this->buffer, this->bufferSize + 1, 0, (struct sockaddr *)&(this->si_other), sizeof(this->si_other)) == -1)
 	{
 		throw("Failed to send packet");
 	}
 
-	std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
+	std::fill(this->buffer, this->buffer + (this->bufferSize + 1), '\0');
 }

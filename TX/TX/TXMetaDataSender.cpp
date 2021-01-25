@@ -1,8 +1,8 @@
 #include "TXMetaDataSender.h"
 
-TXMetaDataSender::TXMetaDataSender(std::string IP, unsigned int port, std::string workingChannel, int channelID) : TXSender(IP, port, workingChannel),
-                                                                                                                   directoryReader(FILES_PATH, true),
-                                                                                                                   redisHandler(0)
+TXMetaDataSender::TXMetaDataSender(std::string IP, unsigned int port, std::string workingChannel, int channelID, int bufferSize) : TXSender(IP, port, workingChannel, bufferSize),
+                                                                                                                                   directoryReader(true),
+                                                                                                                                   redisHandler(0)
 {
     /* The constructor will first call the base class constructor
        in order to initialize the socket, then the object
@@ -99,5 +99,5 @@ void TXMetaDataSender::bufferBuilder()
 
     const char *currentBuffer = metaDataBuffer.c_str();
 
-    std::copy(currentBuffer, currentBuffer + BUFFER_SIZE + 1, this->buffer);
+    std::copy(currentBuffer, currentBuffer + this->bufferSize + 1, this->buffer);
 }

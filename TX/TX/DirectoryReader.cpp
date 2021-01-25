@@ -1,32 +1,18 @@
 #include "DirectoryReader.h"
 
-DirectoryReader::DirectoryReader(std::string directoryPath, bool isMetaData)
+DirectoryReader::DirectoryReader(bool isMetaData)
 {
     /* The constructor will assign the directory path
        and will initialize the DIR object 
        by opening the directory */
 
     this->isMetaData = isMetaData;
-
-    this->directory = new Directory();
-
-    this->directory->directoryPath = directoryPath;
-    this->directory->dir = opendir(this->directory->directoryPath.c_str());
-
-    if (this->directory->dir == NULL)
-    {
-        throw("Couldn't open directory");
-    }
-
-    closedir(this->directory->dir);
 }
 
 DirectoryReader::~DirectoryReader()
 {
     /* The destructor will delete automatically
 	   all the allocated memory of the object */
-
-    delete this->directory;
 }
 
 void DirectoryReader::clearPaths()
@@ -102,14 +88,6 @@ void DirectoryReader::moveFile(std::string newPath, std::string filePath, std::s
         std::cout << "Couldn't move the file to a new location" << std::endl;
         exit(EXIT_FAILURE);
     }
-}
-
-void DirectoryReader::setDirectoryPath(std::string newPath)
-{
-    /* THe function will assign the 
-       current path to a new path */
-
-    this->directory->directoryPath = newPath;
 }
 
 std::vector<std::string> DirectoryReader::getPaths()

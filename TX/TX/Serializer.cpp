@@ -1,18 +1,22 @@
 #include "Serializer.h"
 
-Serializer::Serializer()
+Serializer::Serializer(int bufferSize)
 {
 	/* The constructor will inizialize the variable
 	   packetCount which used for numbering the packets */
 
 	this->packetCount = 0;
-	std::fill(this->serializedBuffer, this->serializedBuffer + (BUFFER_SIZE + 1), '\0');
+	this->bufferSize = bufferSize;
+	this->serializedBuffer = new char[bufferSize + 1];
+	std::fill(this->serializedBuffer, this->serializedBuffer + (this->bufferSize + 1), '\0');
 }
 
 Serializer::~Serializer()
 {
 	/* The destructor will delete automatically
 	   all the allocated memory of the object */
+
+	delete this->serializedBuffer;
 }
 
 void Serializer::serializePacket(char buffer[], int fileID, int channelID)
@@ -31,10 +35,10 @@ void Serializer::serializePacket(char buffer[], int fileID, int channelID)
 	strncat(this->serializedBuffer, hexadecimalF.c_str(), HEX_LENGTH);
 	strncat(this->serializedBuffer, hexadecimalP.c_str(), HEX_LENGTH);
 
-	strncat(this->serializedBuffer, buffer, BUFFER_SIZE + 1 - (HEX_LENGTH * 3));
-	std::copy(this->serializedBuffer, this->serializedBuffer + BUFFER_SIZE + 1, buffer);
+	strncat(this->serializedBuffer, buffer, this->bufferSize + 1 - (HEX_LENGTH * 3));
+	std::copy(this->serializedBuffer, this->serializedBuffer + this->bufferSize + 1, buffer);
 
-	std::fill(this->serializedBuffer, this->serializedBuffer + BUFFER_SIZE + 1, '\0');
+	std::fill(this->serializedBuffer, this->serializedBuffer + this->bufferSize + 1, '\0');
 	this->packetCount++;
 }
 

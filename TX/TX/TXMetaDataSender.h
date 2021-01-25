@@ -25,7 +25,7 @@ private:
     void bufferBuilder();
 
 public:
-    TXMetaDataSender(std::string IP, unsigned int port, std::string workingChannel, int channelID);
+    TXMetaDataSender(std::string IP, unsigned int port, std::string workingChannel, int channelID, int bufferSize);
     ~TXMetaDataSender();
 
     void sendMetaData();

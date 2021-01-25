@@ -15,6 +15,8 @@ class ThreadPool
 {
 private:
     std::string workingChannel;
+    int bufferSize;
+    std::string destIP;
 
     std::vector<std::thread> pool;
 
@@ -25,7 +27,7 @@ private:
     bool poolTerminated;
 
 public:
-    ThreadPool(std::string workingChannel, std::vector<int> portRange, int channelID);
+    ThreadPool(std::string destIP, std::string workingChannel, std::vector<int> portRange, int channelID, int bufferSize);
     ~ThreadPool();
 
     void waitForJob(int port, int channelID);

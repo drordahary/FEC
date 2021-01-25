@@ -2,8 +2,6 @@
 
 #include "TXSender.h"
 
-#define SEND_TIMES 2
-
 class TXDataSender : public TXSender
 {
 private:
@@ -15,7 +13,7 @@ private:
     void readFile(int amountToRead, int position);
 
 public:
-    TXDataSender(std::string IP, unsigned int port, std::string workingChannel);
+    TXDataSender(std::string IP, unsigned int port, std::string workingChannel, int bufferSize);
     ~TXDataSender();
     void preparePackets(int filesize, int fileID, std::string path, int channelID);
 };
