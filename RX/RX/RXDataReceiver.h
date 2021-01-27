@@ -15,7 +15,7 @@ private:
     void handlePacket(int fileID, int channelID);
 
 public:
-    RXDataReceiver(unsigned int port, std::string workingChannel);
+    RXDataReceiver(unsigned int port, std::string workingChannel, int bufferSize);
     ~RXDataReceiver();
 
     void receiveData();

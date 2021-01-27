@@ -30,18 +30,19 @@ void RX::preparePorts()
 	/* The function will prepare
 	   all the ports needed */
 
-	RedisHandler redisHandler = RedisHandler(2);
-	int dirCount = redisHandler.getDirectoryCount();
-	int multiplier = dirCount / PORTS_PER_CHANNEL + 1;
+	this->configs = settings.getConfigs();
+	int dirCount = this->configs->channels.size();
+	int multiplier = dirCount / this->configs->portsPerChannel + 1;
 
 	for (int i = 1; i <= dirCount; i++)
 	{
-		channels.push_back(redisHandler.getChannelName(i));
-		metaDataPorts.push_back(PORT_OFFSET + i);
+		channels.push_back(this->configs->channels[i - 1]);
+		metaDataPorts.push_back(this->configs->portOffset + i);
 
-		for (int j = 0; j < PORTS_PER_CHANNEL; j++)
+		for (int j = 0; j < this->configs->portsPerChannel; j++)
 		{
-			dataPorts.push_back(PORT_OFFSET + (multiplier * PORTS_PER_CHANNEL) + j);
+			dataPorts.push_back(this->configs->portOffset +
+								(multiplier * this->configs->portsPerChannel) + j);
 		}
 
 		multiplier++;
@@ -66,7 +67,7 @@ void RX::openMetaDataPorts()
 
 	for (auto port = metaDataPorts.begin(); port != metaDataPorts.end(); port++)
 	{
-		receivers.push_back(new RXMetaDataReceiver(*port, *channel));
+		receivers.push_back(new RXMetaDataReceiver(*port, *channel, this->configs->bufferSize));
 
 		std::thread receiverThread(&RXMetaDataReceiver::receiveMetaData, receivers.back());
 		openThreads.push_back(std::move(receiverThread));
@@ -101,9 +102,9 @@ void RX::openDataPorts()
 
 	for (auto channel = channels.begin(); channel != channels.end(); channel++)
 	{
-		for (int i = 0; i < PORTS_PER_CHANNEL; i++)
+		for (int i = 0; i < this->configs->portsPerChannel; i++)
 		{
-			receivers.push_back(new RXDataReceiver(*port, *channel));
+			receivers.push_back(new RXDataReceiver(*port, *channel, this->configs->bufferSize));
 
 			std::thread receiverThread(&RXDataReceiver::receiveData, receivers.back());
 			openThreads.push_back(std::move(receiverThread));

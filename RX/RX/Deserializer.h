@@ -4,19 +4,19 @@
 #include <string>
 
 #define HEX_LENGTH 10
-#define BUFFER_SIZE 512
 #define BASE_16 16
 
 class Deserializer
 {
 private:
-	char deserializedBuffer[BUFFER_SIZE - (HEX_LENGTH * 2) + 1];
+	char *deserializedBuffer;
 	int channelID;
 	int fileID;
 	int packetID;
+	int bufferSize;
 
 public:
-	Deserializer();
+	Deserializer(int bufferSize);
 	~Deserializer();
 
 	void deserializePacket(char buffer[]);

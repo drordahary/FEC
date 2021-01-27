@@ -3,8 +3,6 @@
 #include <iostream>
 #include <fstream>
 
-#define BUFFER_SIZE 512
-
 class FileBuilder
 {
 private:

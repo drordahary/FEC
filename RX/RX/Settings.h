@@ -15,6 +15,7 @@ typedef struct Configurations
     int portsPerChannel;
     int timesToSend;
     int bufferSize;
+    std::vector<std::string> channels;
 
 } Configurations;
 
@@ -28,6 +29,6 @@ public:
     Settings();
     ~Settings();
     void fetchResults();
-    void organizeResults(std::vector<std::string>& results);
+    void organizeResults(std::vector<std::string> results);
     Configurations *getConfigs();
 };

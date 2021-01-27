@@ -26,7 +26,7 @@ private:
     void setMetaData();
 
 public:
-    RXMetaDataReceiver(unsigned int port, std::string workingChannel);
+    RXMetaDataReceiver(unsigned int port, std::string workingChannel, int bufferSize);
     ~RXMetaDataReceiver();
 
     void receiveMetaData();

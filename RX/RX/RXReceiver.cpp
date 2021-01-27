@@ -1,6 +1,6 @@
 #include "RXReceiver.h"
 
-RXReceiver::RXReceiver(unsigned int port, std::string workingChannel)
+RXReceiver::RXReceiver(unsigned int port, std::string workingChannel, int bufferSize)
 {
     /* The constructor will use the the given
        port to initialize the socket */
@@ -26,6 +26,9 @@ RXReceiver::RXReceiver(unsigned int port, std::string workingChannel)
         perror("Bind failed");
         exit(EXIT_FAILURE);
     }
+
+    this->bufferSize = bufferSize;
+    this->buffer = new char[bufferSize + 1];
 }
 
 RXReceiver::~RXReceiver()
@@ -35,6 +38,7 @@ RXReceiver::~RXReceiver()
 
     close(this->sock->sc);
     delete this->sock;
+    delete this->buffer;
 }
 
 void RXReceiver::receivePacket()
@@ -42,7 +46,7 @@ void RXReceiver::receivePacket()
     /* The function will only receive
        one single packet each time */
 
-    if (this->sock->recv_len = recvfrom(this->sock->sc, this->buffer, sizeof(this->buffer), 0, (struct sockaddr *)&(this->sock->cliaddr), &(this->sock->slen)) < 0)
+    if (this->sock->recv_len = recvfrom(this->sock->sc, this->buffer, this->bufferSize + 1, 0, (struct sockaddr *)&(this->sock->cliaddr), &(this->sock->slen)) < 0)
     {
         std::cout << "Failed to receive" << std::endl;
         exit(EXIT_FAILURE);

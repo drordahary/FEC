@@ -1,17 +1,17 @@
 #include "RXDataReceiver.h"
 
-RXDataReceiver::RXDataReceiver(unsigned int port, std::string workingChannel) : RXReceiver(port, workingChannel),
-                                                                                redisHandler(1)
+RXDataReceiver::RXDataReceiver(unsigned int port, std::string workingChannel, int bufferSize) : RXReceiver(port, workingChannel, bufferSize),
+                                                                                                redisHandler(1),
+                                                                                                deserializer(bufferSize)
 {
     /* The constructor will first call the base class 
        constructor in order to initialize the socket,
        then the rest of the fields */
 
-    this->deserializer = Deserializer();
     this->currentFileID = -1;
     this->currentChannelID = -1;
 
-    std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
+    std::fill(this->buffer, this->buffer + (bufferSize + 1), '\0');
 }
 
 RXDataReceiver::~RXDataReceiver()
@@ -30,7 +30,7 @@ void RXDataReceiver::receiveData()
 
     while (true)
     {
-        std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), '\0');
+        std::fill(this->buffer, this->buffer + (this->bufferSize + 1), '\0');
 
         receivePacket();
         handleData();

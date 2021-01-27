@@ -195,6 +195,31 @@ std::string RedisHandler::getValue(std::string key)
     return value;
 }
 
+void RedisHandler::setChannels(std::vector<std::string> &channels)
+{
+    /* This function will receive a reference to a 
+       vector which will store the results from Redis */
+
+    this->reply = (redisReply *)redisCommand(this->context, "get dirCount");
+    checkExecution();
+
+    int dirCount = std::stoi(this->reply->str);
+    freeReplyObject(this->reply);
+
+    std::string command = "lrange channels 0 " + std::to_string(dirCount);
+    this->reply = (redisReply *)redisCommand(this->context, command.c_str());
+
+    if (reply->type == REDIS_REPLY_ARRAY)
+    {
+        for (int i = 0; i < reply->elements; i++)
+        {
+            channels.push_back(reply->element[i]->str);
+        }
+    }
+
+    freeReplyObject(this->reply);
+}
+
 void RedisHandler::closeConnection()
 {
     /* The function will close the 

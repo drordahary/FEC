@@ -1,7 +1,7 @@
 #include "RXMetaDataReceiver.h"
 
-RXMetaDataReceiver::RXMetaDataReceiver(unsigned int port, std::string workingChannel) : RXReceiver(port, workingChannel),
-                                                                                        redisHandler(1)
+RXMetaDataReceiver::RXMetaDataReceiver(unsigned int port, std::string workingChannel, int bufferSize) : RXReceiver(port, workingChannel, bufferSize),
+                                                                                                        redisHandler(1)
 {
     /* The constructor will first call the base class to 
        initialize connection and then connect to Redis */
@@ -26,7 +26,7 @@ void RXMetaDataReceiver::receiveMetaData()
 
     while (true)
     {
-        std::fill(this->buffer, this->buffer + (BUFFER_SIZE + 1), 0);
+        std::fill(this->buffer, this->buffer + (this->bufferSize + 1), 0);
 
         receivePacket();
         organizeData(this->buffer);

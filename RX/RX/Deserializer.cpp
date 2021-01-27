@@ -1,15 +1,20 @@
 #include "Deserializer.h"
 
-Deserializer::Deserializer()
+Deserializer::Deserializer(int bufferSize)
 {
 	/* The constructor will not do anything 
 	   other than creating the object */
+
+	this->bufferSize = bufferSize;
+	this->deserializedBuffer = new char[bufferSize - (HEX_LENGTH * 3) + 1];
 }
 
 Deserializer::~Deserializer()
 {
 	/* The destructor will delete automatically
 	   all the allocated memory of the object */
+
+	delete this->deserializedBuffer;
 }
 
 void Deserializer::deserializePacket(char buffer[])
@@ -25,12 +30,12 @@ void Deserializer::deserializePacket(char buffer[])
 	this->fileID = hexToInt(fileHexadecimal);
 	this->packetID = hexToInt(packetHexadecimal);
 
-	std::copy(buffer + (HEX_LENGTH * 3), buffer + BUFFER_SIZE + 1, this->deserializedBuffer);
+	std::copy(buffer + (HEX_LENGTH * 3), buffer + this->bufferSize + 1, this->deserializedBuffer);
 
-	std::fill(buffer, buffer + BUFFER_SIZE + 1, '\0');
-	std::copy(this->deserializedBuffer, this->deserializedBuffer + BUFFER_SIZE - (HEX_LENGTH * 3) + 1, buffer);
+	std::fill(buffer, buffer + this->bufferSize + 1, '\0');
+	std::copy(this->deserializedBuffer, this->deserializedBuffer + this->bufferSize - (HEX_LENGTH * 3) + 1, buffer);
 
-	std::fill(this->deserializedBuffer, this->deserializedBuffer + BUFFER_SIZE - (HEX_LENGTH * 3) + 1, '\0');
+	std::fill(this->deserializedBuffer, this->deserializedBuffer + this->bufferSize - (HEX_LENGTH * 3) + 1, '\0');
 }
 
 int Deserializer::hexToInt(std::string hexadecimal)
