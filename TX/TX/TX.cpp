@@ -27,7 +27,6 @@ void TX::preparePorts()
 	/* This function will prepare all the ports and
 	   the additional information to start sending */
 
-	RedisHandler redisHandler(2);
 	this->configs = this->settings.getConfigs();
 
 	int dirCount = this->configs->channels.size();
@@ -46,8 +45,6 @@ void TX::preparePorts()
 
 		multiplier++;
 	}
-
-	redisHandler.closeConnection();
 
 	redisHandler = RedisHandler(0);
 	int lastUpdatedID = redisHandler.getLastChannelID();

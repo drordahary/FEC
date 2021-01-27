@@ -168,7 +168,6 @@ void RedisHandler::setChannels(std::vector<std::string> &channels)
         for (int i = 0; i < reply->elements; i++)
         {
             channels.push_back(reply->element[i]->str);
-            std::cout << channels[i] << std::endl;
         }
     }
 

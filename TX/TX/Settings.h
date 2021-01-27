@@ -4,7 +4,7 @@
 #include <string.h>
 #include <vector>
 
-#define REDIS_DB 3
+#define REDIS_DB 2
 #define CONFIGS_COUNT 6
 
 typedef struct Configurations
