@@ -139,7 +139,7 @@ void TX::workingDataChannel(std::string channel, std::vector<std::string> paths,
 	/* This function will manage all the ports and 
 	   will give each port a specific file to work on */
 
-	ThreadPool pool(this->configs->dstIP, channel, ports, channelID, this->configs->bufferSize);
+	ThreadPool pool(channel, ports, channelID, this->configs);
 	int lastUpdatedID = 0;
 
 	for (std::string &path : paths)

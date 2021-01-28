@@ -2,6 +2,7 @@
 
 #include "TXDataSender.h"
 #include "TXMetaDataSender.h"
+#include "Settings.h"
 
 #include <queue>
 #include <condition_variable>
@@ -15,8 +16,9 @@ class ThreadPool
 {
 private:
     std::string workingChannel;
-    int bufferSize;
     std::string destIP;
+    int bufferSize;
+    int timesToSend;
 
     std::vector<std::thread> pool;
 
@@ -24,10 +26,13 @@ private:
     std::mutex queueMutex;
     std::condition_variable condition;
 
+    Configurations *configs;
+
     bool poolTerminated;
 
 public:
-    ThreadPool(std::string destIP, std::string workingChannel, std::vector<int> portRange, int channelID, int bufferSize);
+    ThreadPool(std::string workingChannel, std::vector<int> portRange,
+               int channelID, Configurations *configs);
     ~ThreadPool();
 
     void waitForJob(int port, int channelID);

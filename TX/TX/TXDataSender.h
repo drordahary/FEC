@@ -9,11 +9,13 @@ private:
     Serializer serializer;
     DirectoryReader directoryReader;
     RedisHandler redisHandler;
+    int timesToSend;
 
     void readFile(int amountToRead, int position);
 
 public:
-    TXDataSender(std::string IP, unsigned int port, std::string workingChannel, int bufferSize);
+    TXDataSender(std::string IP, unsigned int port, std::string workingChannel,
+                 int bufferSize, int timesToSend);
     ~TXDataSender();
     void preparePackets(int filesize, int fileID, std::string path, int channelID);
 };
