@@ -34,6 +34,7 @@ public:
 
     int getLastChannelID();
     std::string getFileName(int fileID, int channelID);
+    int getFileSize(int channelID, int fileID);
 
     std::string getValue(std::string key);
     void setChannels(std::vector<std::string>& channels);

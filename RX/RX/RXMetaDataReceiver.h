@@ -13,6 +13,7 @@ typedef struct FileMetaData
 class RXMetaDataReceiver : public RXReceiver
 {
 private:
+    FileBuilder fileBuilder;
     std::string splittedData[4];
     FileMetaData *fileMetaData;
     std::map<std::string, std::string> fields;

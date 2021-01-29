@@ -9,10 +9,12 @@ private:
     Deserializer deserializer;
     RedisHandler redisHandler;
 
-    int currentChannelID;
     int currentFileID;
 
-    void handlePacket(int fileID, int channelID);
+    std::map<int, int> receivedFiles;
+
+    std::string handlePacket(int fileID, int channelID);
+    int calculateOffset(int fileSize, int packetID, int packetSize);
 
 public:
     RXDataReceiver(unsigned int port, std::string workingChannel, int bufferSize);

@@ -9,7 +9,6 @@ RXDataReceiver::RXDataReceiver(unsigned int port, std::string workingChannel, in
        then the rest of the fields */
 
     this->currentFileID = -1;
-    this->currentChannelID = -1;
 
     std::fill(this->buffer, this->buffer + (bufferSize + 1), '\0');
 }
@@ -49,6 +48,8 @@ void RXDataReceiver::handleData()
     int channelID = 0;
     int fileID = 0;
     int packetID = 0;
+    int fileSize = 0;
+    std::string fileName;
 
     deserializer.deserializePacket(this->buffer);
 
@@ -56,17 +57,47 @@ void RXDataReceiver::handleData()
     fileID = deserializer.getFileID();
     packetID = deserializer.getPacketID();
 
-    if (channelID != currentChannelID || fileID != currentFileID)
+    if (this->receivedFiles.find(fileID) == this->receivedFiles.end())
     {
-        handlePacket(fileID, channelID);
-        channelID = currentChannelID;
+        fileSize = this->redisHandler.getFileSize(channelID, fileID);
+        this->receivedFiles.insert({fileID, fileSize});
+    }
+
+    if (fileID != currentFileID)
+    {
+        fileName = handlePacket(fileID, channelID);
         fileID = currentFileID;
     }
 
-    this->fileBuilder.writeToFile(this->buffer);
+    int packetSize = strnlen(this->buffer, this->bufferSize);
+
+    this->fileBuilder.setFile(std::string(FILES_PATH) + "/" + fileName);
+    this->fileBuilder.writeToFile(this->buffer, packetSize, calculateOffset(fileSize, packetID, packetSize));
+    this->fileBuilder.closeFile();
 }
 
-void RXDataReceiver::handlePacket(int fileID, int channelID)
+int RXDataReceiver::calculateOffset(int fileSize, int packetID, int packetSize)
+{
+    /* The function will calculate the offset 
+       which we need to start writing from */
+
+    int fullBuffersCount = fileSize / (this->bufferSize - (HEX_LENGTH * 3));
+    int offset = 0;
+
+    if (packetSize < (this->bufferSize - (HEX_LENGTH * 3)))
+    {
+        offset = packetID * fullBuffersCount * (this->bufferSize - (HEX_LENGTH * 3));
+    }
+
+    else
+    {
+        offset = packetID * packetSize;
+    }
+
+    return offset;
+}
+
+std::string RXDataReceiver::handlePacket(int fileID, int channelID)
 {
     /* This function will  */
 
@@ -76,7 +107,7 @@ void RXDataReceiver::handlePacket(int fileID, int channelID)
     if (pos != std::string::npos)
     {
         fileName = fileName.substr(0, pos);
-        this->fileBuilder.closeFile();
-        this->fileBuilder.setFile(std::string(FILES_PATH) + "/" + fileName);
     }
+
+    return fileName;
 }

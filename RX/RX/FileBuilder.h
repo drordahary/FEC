@@ -1,19 +1,21 @@
 #pragma once
 
 #include <iostream>
-#include <fstream>
+#include <stdio.h>
+#include <string.h>
 
 class FileBuilder
 {
 private:
-	std::ofstream file;
+	FILE *file;
 
 public:
 	FileBuilder();
 	~FileBuilder();
 
+	void createNewFile(int size, std::string fileName);
 	void setFile(std::string filename);
 
-	void writeToFile(char buffer[]);
+	void writeToFile(char buffer[], int bufferLength, int offset);
 	void closeFile();
 };

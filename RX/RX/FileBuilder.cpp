@@ -13,28 +13,40 @@ FileBuilder::~FileBuilder()
 	   all the allocated memory of the object */
 }
 
+void FileBuilder::createNewFile(int size, std::string fileName)
+{
+	/* This function will create a sparse file, 
+	   enabling us to write to it from ant position */
+
+	this->file = fopen(fileName.c_str(), "wb");
+	fseek(file, size - 1, SEEK_SET);
+	fputc('\0', file);
+	fclose(this->file);
+}
+
 void FileBuilder::setFile(std::string filename)
 {
 	/* The function will initialize ofstream.
 	   If the file doesn't exists it'll create one */
 
-	this->file.open(filename.c_str(), std::ios_base::app);
+	this->file = fopen(filename.c_str(), "wb");
 
-	if (!this->file.is_open())
+	if (this->file == NULL)
 	{
-		throw("Error while trying to opening / creating the file");
+		printf("Error while trying to opening / creating the file");
+		exit(EXIT_FAILURE);
 	}
 }
 
-void FileBuilder::writeToFile(char buffer[])
+void FileBuilder::writeToFile(char buffer[], int bufferLength, int offset)
 {
 	/* The function will receive a buffer as a 
 	   parameter and will append it to the file */
 
-	if (this->file.is_open())
+	if (this->file != NULL)
 	{
-		this->file << buffer;
-		this->file.flush();
+		fseek(this->file, offset, SEEK_SET);
+		fwrite(buffer, sizeof(char), bufferLength, this->file);
 	}
 }
 
@@ -43,8 +55,8 @@ void FileBuilder::closeFile()
 	/* This function will be called if the program
 	   crashes or the program finished */
 
-	if (this->file.is_open())
+	if (this->file != NULL)
 	{
-		this->file.close();
+		fclose(this->file);
 	}
 }

@@ -195,6 +195,24 @@ std::string RedisHandler::getValue(std::string key)
     return value;
 }
 
+int RedisHandler::getFileSize(int channelID, int fileID)
+{
+    /* This function will get the file size
+       from given channel ID and file ID */
+
+    std::string command = "hmget channelID:" + std::to_string(channelID) +
+                          " fileID:" + std::to_string(fileID);
+
+    this->reply = (redisReply *)redisCommand(this->context, command.c_str());
+    checkExecution();
+
+    std::string metaData = this->reply->element[0]->str;
+    freeReplyObject(this->reply);
+
+    int fileSize = std::stoi(metaData.substr(metaData.find(':') + 1, metaData.length()));
+    return fileSize;
+}
+
 void RedisHandler::setChannels(std::vector<std::string> &channels)
 {
     /* This function will receive a reference to a 
