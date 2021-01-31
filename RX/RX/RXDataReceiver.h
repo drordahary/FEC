@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include "RXReceiver.h"
 
 class RXDataReceiver : public RXReceiver
@@ -11,10 +12,12 @@ private:
 
     int currentFileID;
 
-    std::map<int, int> receivedFiles;
+    std::map<int, std::vector<int>> receivedFiles;
+    std::map<int, bool> fullyReceivedFiles;
 
     std::string handlePacket(int fileID, int channelID);
     int calculateOffset(int fileSize, int packetID, int packetSize);
+    void checkMaxSize(int fileID, int fileSize);
 
 public:
     RXDataReceiver(unsigned int port, std::string workingChannel, int bufferSize);

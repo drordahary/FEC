@@ -57,23 +57,33 @@ void RXDataReceiver::handleData()
     fileID = deserializer.getFileID();
     packetID = deserializer.getPacketID();
 
+    fileSize = this->redisHandler.getFileSize(channelID, fileID);
+
     if (this->receivedFiles.find(fileID) == this->receivedFiles.end())
     {
-        fileSize = this->redisHandler.getFileSize(channelID, fileID);
-        this->receivedFiles.insert({fileID, fileSize});
+        this->receivedFiles.insert(std::pair<int, std::vector<int>>(fileID, std::vector<int>()));
+        this->fullyReceivedFiles.insert(std::pair<int, bool>(fileID, false));
     }
 
-    if (fileID != currentFileID)
+    auto start = this->receivedFiles.at(fileID).begin();
+    auto stop = this->receivedFiles.at(fileID).end();
+
+    if ((std::find(start, stop, packetID) == stop) && !this->fullyReceivedFiles.at(fileID))
     {
-        fileName = handlePacket(fileID, channelID);
-        fileID = currentFileID;
+        this->receivedFiles.at(fileID).push_back(packetID);
+
+        if (fileID != currentFileID)
+        {
+            fileName = handlePacket(fileID, channelID);
+            fileID = currentFileID;
+        }
+
+        int packetSize = strnlen(this->buffer, this->bufferSize);
+
+        this->fileBuilder.setFile(std::string(FILES_PATH) + "/" + fileName);
+        this->fileBuilder.writeToFile(this->buffer, packetSize, calculateOffset(fileSize, packetID, packetSize));
+        this->fileBuilder.closeFile();
     }
-
-    int packetSize = strnlen(this->buffer, this->bufferSize);
-
-    this->fileBuilder.setFile(std::string(FILES_PATH) + "/" + fileName);
-    this->fileBuilder.writeToFile(this->buffer, packetSize, calculateOffset(fileSize, packetID, packetSize));
-    this->fileBuilder.closeFile();
 }
 
 int RXDataReceiver::calculateOffset(int fileSize, int packetID, int packetSize)
@@ -110,4 +120,25 @@ std::string RXDataReceiver::handlePacket(int fileID, int channelID)
     }
 
     return fileName;
+}
+
+void RXDataReceiver::checkMaxSize(int fileID, int fileSize)
+{
+    /* This function will check to see if a certain file
+       has already received the maximum amount 
+       of bytes to remove it from the map */
+
+    int currentTotalSize = 0;
+
+    for (auto &packet : this->receivedFiles.at(fileID))
+    {
+        currentTotalSize += this->bufferSize;
+    }
+
+    if (currentTotalSize >= fileSize)
+    {
+        this->receivedFiles.erase(fileID);
+    }
+
+    this->fullyReceivedFiles.at(fileID) = true;
 }
