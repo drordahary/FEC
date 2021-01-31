@@ -18,6 +18,8 @@ public:
 	Serializer(int bufferSize);
 	~Serializer();
 
+	void resetPacketCount();
+
 	void serializePacket(char buffer[], int fileID, int channelID);
 	std::string intToHex(int ID);
 };

@@ -52,3 +52,11 @@ std::string Serializer::intToHex(int ID)
 	hexadecimal << "0x" << std::setfill('0') << std::setw(sizeof(int) * 2) << std::hex << ID;
 	return hexadecimal.str();
 }
+
+void Serializer::resetPacketCount()
+{
+	/* The function will reset the packet counter feild
+	   for re-sending the same packet more times */
+
+	this->packetCount = 0;
+}

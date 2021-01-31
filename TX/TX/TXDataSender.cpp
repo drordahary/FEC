@@ -67,5 +67,6 @@ void TXDataSender::preparePackets(int filesize, int fileID, std::string path, in
 		}
 
 		this->fileReader.closeFile();
+		this->serializer.resetPacketCount();
 	}
 }
