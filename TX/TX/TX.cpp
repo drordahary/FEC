@@ -46,11 +46,6 @@ void TX::preparePorts()
 		multiplier++;
 	}
 
-	redisHandler = RedisHandler(0);
-	int lastUpdatedID = redisHandler.getLastChannelID();
-
-	redisHandler.closeConnection();
-
 	openMetaDataPorts();
 	openDataPorts();
 }

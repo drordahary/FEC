@@ -25,8 +25,11 @@ public:
     void iterateDirectory(std::string currentDirectory);
     void setDirectoryPath(std::string newPath);
 
+    void moveFile(std::string to, std::string from);
     void moveFile(std::string newPath, std::string filePath, std::string contatingFolder);
 
     std::vector<std::string> getPaths();
     void loadPath(std::string path);
 };
+
+int nthOccurrence(const std::string& str, const std::string& findMe, int nth);

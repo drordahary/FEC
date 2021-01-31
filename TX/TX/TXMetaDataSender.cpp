@@ -43,6 +43,7 @@ void TXMetaDataSender::sendMetaData()
         // < Creating the structure in the new folder > //
 
         createStructure(TOSEND_PATH, *start);
+        createStructure(ARCHIVE_PATH, *start);
 
         // < Building the path and set the file to use > //
 

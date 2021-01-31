@@ -75,6 +75,18 @@ void DirectoryReader::iterateDirectory(std::string currentDirectory)
     closedir(dir);
 }
 
+void DirectoryReader::moveFile(std::string to, std::string from)
+{
+    /* This function assumes you already have 
+       fixed paths to immidietly moving the file */
+
+    if (rename(from.c_str(), to.c_str()) != 0)
+    {
+        std::cout << "Couldn't move the file to a new location" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
 void DirectoryReader::moveFile(std::string newPath, std::string filePath, std::string containingFolder)
 {
     /* The function will move the files from the 
@@ -83,11 +95,7 @@ void DirectoryReader::moveFile(std::string newPath, std::string filePath, std::s
     std::string pathToFile = containingFolder + "/" + filePath;
     newPath += "/" + filePath;
 
-    if (rename(pathToFile.c_str(), newPath.c_str()) != 0)
-    {
-        std::cout << "Couldn't move the file to a new location" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    moveFile(newPath, pathToFile);
 }
 
 std::vector<std::string> DirectoryReader::getPaths()

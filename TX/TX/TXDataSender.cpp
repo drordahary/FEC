@@ -69,4 +69,30 @@ void TXDataSender::preparePackets(int filesize, int fileID, std::string path, in
 		this->fileReader.closeFile();
 		this->serializer.resetPacketCount();
 	}
+
+	std::string pathToChannel = path.substr(nthOccurrence(path, "/", 2) + 1, path.find_last_of('/'));
+	std::string moveTo = std::string(ARCHIVE_PATH) + "/" + pathToChannel;
+
+	this->directoryReader.moveFile(moveTo, path);
+}
+
+int nthOccurrence(const std::string &str, const std::string &find, int nth)
+{
+	size_t pos = 0;
+	int count = 0;
+
+	while (count != nth)
+	{
+		pos += 1;
+		pos = str.find(find, pos);
+
+		if (pos == std::string::npos)
+		{
+			return -1;
+		}
+
+		count++;
+	}
+
+	return pos;
 }
