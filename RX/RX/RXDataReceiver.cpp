@@ -51,13 +51,15 @@ void RXDataReceiver::handleData()
     int fileSize = 0;
     std::string fileName;
 
+    std::cout << this->buffer << std::endl;
     deserializer.deserializePacket(this->buffer);
-
+    
     channelID = deserializer.getChannelID();
     fileID = deserializer.getFileID();
     packetID = deserializer.getPacketID();
 
     fileSize = this->redisHandler.getFileSize(channelID, fileID);
+    printf("here %d\n", fileID);
 
     if (this->receivedFiles.find(fileID) == this->receivedFiles.end())
     {

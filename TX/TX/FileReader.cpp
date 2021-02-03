@@ -21,7 +21,7 @@ void FileReader::setFile(const char *filepath)
 
 	if (!this->file.is_open())
 	{
-		throw("Error while trying to open the file. check if the file exists first");
+		std::cout << "Error while trying to open the file. check if the file exists first" << std::endl;
 	}
 
 	this->file.seekg(0, std::ios::end);

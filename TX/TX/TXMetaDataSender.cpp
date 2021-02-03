@@ -1,14 +1,16 @@
 #include "TXMetaDataSender.h"
 
-TXMetaDataSender::TXMetaDataSender(std::string IP, unsigned int port, std::string workingChannel, int channelID, int bufferSize) : TXSender(IP, port, workingChannel, bufferSize),
-                                                                                                                                   directoryReader(true),
-                                                                                                                                   redisHandler(0)
+TXMetaDataSender::TXMetaDataSender(std::string IP, unsigned int port, std::string workingChannel, int channelID, int bufferSize, ThreadPool *pool) : TXSender(IP, port, workingChannel, bufferSize),
+                                                                                                                                                     directoryReader(true),
+                                                                                                                                                     redisHandler(0)
 {
     /* The constructor will first call the base class constructor
        in order to initialize the socket, then the object
        directoryReader and redisHandler and then the rest of the fields */
 
     this->metaData = new FileMetaData();
+    this->pool = pool;
+    this->lastUpdatedFileID = 0;
     this->channelID = channelID;
     TXSender::lastIDUpdated = this->redisHandler.getLastChannelID();
 }
@@ -28,49 +30,65 @@ void TXMetaDataSender::sendMetaData()
        to send and also will call a function that will
        save the meta data to redis */
 
-    std::string trimmedPath = this->workingChannel.substr(0, this->workingChannel.find_last_of('/'));
-    this->directoryReader.loadPath(trimmedPath);
-    this->directoryReader.iterateDirectory(this->workingChannel);
-
-    paths = this->directoryReader.getPaths();
-
+    std::string trimmedPath;
     std::string currentPath = "";
     std::string parameters[2];
     int currentID = 0;
 
-    for (auto start = this->paths.begin(); start < this->paths.end(); start++)
+    while (true)
     {
-        // < Creating the structure in the new folder > //
+        trimmedPath = this->workingChannel.substr(0, this->workingChannel.find_last_of('/'));
+        this->directoryReader.loadPath(trimmedPath);
+        this->directoryReader.iterateDirectory(this->workingChannel);
 
-        createStructure(TOSEND_PATH, *start);
-        createStructure(ARCHIVE_PATH, *start);
+        paths = this->directoryReader.getPaths();
 
-        // < Building the path and set the file to use > //
+        if (!paths.empty())
+        {
+            for (auto start = this->paths.begin(); start < this->paths.end(); start++)
+            {
+                // < Creating the structure in the new folder > //
 
-        currentPath = trimmedPath + "/" + *start;
-        this->fileReader.setFile(currentPath.c_str());
+                createStructure(TOSEND_PATH, *start);
+                createStructure(ARCHIVE_PATH, *start);
 
-        // < Set the meta data and closing the file > //
+                // < Building the path and set the file to use > //
 
-        this->metaData->filePath = *start;
-        this->metaData->size = this->fileReader.getFileSize();
-        this->fields.insert({"fileID:" + std::to_string(currentID),
-                             *start + ":" + std::to_string(this->metaData->size)});
+                currentPath = trimmedPath + "/" + *start;
+                this->fileReader.setFile(currentPath.c_str());
 
-        this->fileReader.closeFile();
-        this->metaData->ID = currentID;
+                // < Set the meta data and closing the file > //
 
-        // < Moving the file, building the buffer and sending the packet > //
+                this->metaData->filePath = *start;
+                this->metaData->size = this->fileReader.getFileSize();
+                this->fields.insert({"fileID:" + std::to_string(currentID),
+                                     *start + ":" + std::to_string(this->metaData->size)});
 
-        this->directoryReader.moveFile(TOSEND_PATH, *start, trimmedPath);
+                this->fileReader.closeFile();
+                this->metaData->ID = currentID;
 
-        bufferBuilder();
-        sendPacket();
+                // < Moving the file, building the buffer and sending the packet > //
 
-        currentID++;
+                this->directoryReader.moveFile(TOSEND_PATH, *start, trimmedPath);
+
+                bufferBuilder();
+                std::cout << this->buffer << std::endl;
+                sendPacket();
+
+                this->pool->addJob(std::string(TOSEND_PATH) + "/" + *start + "," + std::to_string(lastUpdatedFileID), channelID);
+
+                lastUpdatedFileID++;
+                currentID++;
+            }
+
+            saveToRedis();
+            this->paths.clear();
+        }
+
+        directoryReader.clearPaths();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-    saveToRedis();
     this->redisHandler.closeConnection();
 }
 

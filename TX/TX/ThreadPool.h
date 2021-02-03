@@ -1,7 +1,6 @@
 #pragma once
 
 #include "TXDataSender.h"
-#include "TXMetaDataSender.h"
 #include "Settings.h"
 
 #include <queue>
