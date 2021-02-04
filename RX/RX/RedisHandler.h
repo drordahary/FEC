@@ -32,6 +32,8 @@ public:
     int getDirectoryCount();
     std::string getChannelName(int channelID);
 
+    bool fileExists(int channelID, int fileID);
+
     int getLastChannelID();
     std::string getFileName(int fileID, int channelID);
     int getFileSize(int channelID, int fileID);

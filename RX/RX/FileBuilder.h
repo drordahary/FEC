@@ -14,8 +14,9 @@ public:
 	~FileBuilder();
 
 	void createNewFile(int size, std::string fileName);
-	void setFile(std::string filename);
+	void setFile(std::string filename, const char *option);
 
 	void writeToFile(char buffer[], int bufferLength, int offset);
+	void appendToFile(const char *buffer);
 	void closeFile();
 };

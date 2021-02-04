@@ -14,6 +14,9 @@ private:
 
     std::map<int, std::vector<int>> receivedFiles;
     std::map<int, bool> fullyReceivedFiles;
+    std::map<int, std::vector<int>> untrackedFiles;
+
+    void assumeCase();
 
     std::string handlePacket(int fileID, int channelID);
     int calculateOffset(int fileSize, int packetID, int packetSize);
@@ -24,5 +27,9 @@ public:
     ~RXDataReceiver();
 
     void receiveData();
-    void handleData();
+    void handleData(int channelID, int fileID, int packetID);
+    void handleUntrackedFile(int channelID, int fileID, int packetID);
+    void trackFile(int channelID, int fileID, int packetID);
 };
+
+std::string intToHex(int packetID);

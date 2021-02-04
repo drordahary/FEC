@@ -2,8 +2,8 @@
 
 Deserializer::Deserializer(int bufferSize)
 {
-	/* The constructor will not do anything 
-	   other than creating the object */
+	/* The constructor will initialize the 
+	   fields and create the object */
 
 	this->bufferSize = bufferSize;
 	this->deserializedBuffer = new char[bufferSize - (HEX_LENGTH * 3) + 1];

@@ -40,8 +40,20 @@ void RedisHandler::connectToRedis()
     freeReplyObject(this->reply);
 }
 
-void RedisHandler::addMetaData(std::map<std::string, std::string> &fields, std::string &key,
-                               bool channelIDAdded)
+bool RedisHandler::fileExists(int channelID, int fileID)
+{
+    /* The function will check if the 
+       file ID is present in the database */
+
+    std::string command = "hmget channelID:" + std::to_string(channelID) + " fileID:" + std::to_string(fileID);
+    this->reply = (redisReply *)redisCommand(this->context, command.c_str());
+
+    bool exists = reply->type != REDIS_REPLY_NIL;
+    freeReplyObject(this->reply);
+    return exists;
+}
+
+void RedisHandler::addMetaData(std::map<std::string, std::string> &fields, std::string &key, bool channelIDAdded)
 {
     /* This function will update Redis with a set of files metadata
        and will use the command HMSET for that operation */

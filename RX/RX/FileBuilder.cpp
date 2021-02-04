@@ -24,12 +24,12 @@ void FileBuilder::createNewFile(int size, std::string fileName)
 	fclose(this->file);
 }
 
-void FileBuilder::setFile(std::string filename)
+void FileBuilder::setFile(std::string filename, const char *option)
 {
 	/* The function will initialize ofstream.
 	   If the file doesn't exists it'll create one */
 
-	this->file = fopen(filename.c_str(), "wb");
+	this->file = fopen(filename.c_str(), option);
 
 	if (this->file == NULL)
 	{
@@ -47,6 +47,17 @@ void FileBuilder::writeToFile(char buffer[], int bufferLength, int offset)
 	{
 		fseek(this->file, offset, SEEK_SET);
 		fwrite(buffer, sizeof(char), bufferLength, this->file);
+	}
+}
+
+void FileBuilder::appendToFile(const char *buffer)
+{
+	/* This function will append the buffer data to EOF
+	   Will be mainly used for untracked files */
+
+	if (this->file != NULL)
+	{
+		fprintf(this->file, "%s", buffer);
 	}
 }
 

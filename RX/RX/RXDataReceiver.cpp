@@ -32,11 +32,46 @@ void RXDataReceiver::receiveData()
         std::fill(this->buffer, this->buffer + (this->bufferSize + 1), '\0');
 
         receivePacket();
-        handleData();
+        assumeCase();
     }
 }
 
-void RXDataReceiver::handleData()
+void RXDataReceiver::assumeCase()
+{
+    /* This function will check to see if the case is 
+       about an existing file or about an untracked file */
+
+    int channelID = 0;
+    int fileID = 0;
+    int packetID = 0;
+
+    deserializer.deserializePacket(this->buffer);
+
+    channelID = deserializer.getChannelID();
+    fileID = deserializer.getFileID();
+    packetID = deserializer.getPacketID();
+
+    if (!redisHandler.fileExists(channelID, fileID))
+    {
+        handleUntrackedFile(channelID, fileID, packetID);
+        return;
+    }
+
+    else
+    {
+        if (this->untrackedFiles.find(fileID) == this->untrackedFiles.end())
+        {
+            handleData(channelID, fileID, packetID);
+        }
+
+        else
+        {
+            handleUntrackedFile(channelID, fileID, packetID);
+        }
+    }
+}
+
+void RXDataReceiver::handleData(int channelID, int fileID, int packetID)
 {
     /* and will write the 
 	   received buffer to a matched file
@@ -45,21 +80,10 @@ void RXDataReceiver::handleData()
        If the current file ID has been changed it'll close
        the current file and will open a new one */
 
-    int channelID = 0;
-    int fileID = 0;
-    int packetID = 0;
     int fileSize = 0;
     std::string fileName;
 
-    std::cout << this->buffer << std::endl;
-    deserializer.deserializePacket(this->buffer);
-    
-    channelID = deserializer.getChannelID();
-    fileID = deserializer.getFileID();
-    packetID = deserializer.getPacketID();
-
     fileSize = this->redisHandler.getFileSize(channelID, fileID);
-    printf("here %d\n", fileID);
 
     if (this->receivedFiles.find(fileID) == this->receivedFiles.end())
     {
@@ -82,7 +106,7 @@ void RXDataReceiver::handleData()
 
         int packetSize = strnlen(this->buffer, this->bufferSize);
 
-        this->fileBuilder.setFile(std::string(FILES_PATH) + "/" + fileName);
+        this->fileBuilder.setFile(std::string(FILES_PATH) + "/" + fileName, "wb");
         this->fileBuilder.writeToFile(this->buffer, packetSize, calculateOffset(fileSize, packetID, packetSize));
         this->fileBuilder.closeFile();
     }
