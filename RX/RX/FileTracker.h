@@ -3,6 +3,7 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 #include "FileBuilder.h"
 
 #define UNTRACKED "./Untracked"
@@ -20,7 +21,7 @@ public:
     ~FileTracker();
 
     void handleUntrackedFile(int channelID, int fileID, int packetID, const char *buffer);
-    void trackFile(int channelID, int fileID, int packetID);
+    void trackFile(int channelID, int fileID, int packetID, std::string fileName, int size);
 
     void writeData(int channelID, int fileID, int packetID, const char *buffer);
 };

@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define FILES_PATH "./Files"
+
 class FileBuilder
 {
 private:
