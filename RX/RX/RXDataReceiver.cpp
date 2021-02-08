@@ -2,13 +2,14 @@
 
 RXDataReceiver::RXDataReceiver(unsigned int port, std::string workingChannel, int bufferSize) : RXReceiver(port, workingChannel, bufferSize),
                                                                                                 redisHandler(1),
-                                                                                                deserializer(bufferSize)
+                                                                                                deserializer(bufferSize),
+                                                                                                fileTracker(bufferSize)
 {
     /* The constructor will first call the base class 
        constructor in order to initialize the socket,
        then the rest of the fields */
 
-    this->currentFileID = -1;
+    this->lastUpdatedPacketID = -1;
 
     std::fill(this->buffer, this->buffer + (bufferSize + 1), '\0');
 }
@@ -51,23 +52,25 @@ void RXDataReceiver::assumeCase()
     fileID = deserializer.getFileID();
     packetID = deserializer.getPacketID();
 
-    if (!redisHandler.fileExists(channelID, fileID))
+    if (!redisHandler.fileExists(channelID, fileID)) // File did not receive meta data
     {
-        handleUntrackedFile(channelID, fileID, packetID);
-        return;
+        fileTracker.handleUntrackedFile(channelID, fileID, packetID, this->buffer);
+
+        if (std::find(openThreadsForFileID.begin(), openThreadsForFileID.end(), fileID) == openThreadsForFileID.end())
+        {
+            std::thread(&RXDataReceiver::checkUntrackedFile, this, channelID, fileID).detach();
+            this->openThreadsForFileID.push_back(fileID);
+        }
     }
 
     else
     {
-        if (this->untrackedFiles.find(fileID) == this->untrackedFiles.end())
+        if (fileTracker.isFileUntracked(fileID)) // Untracked file
         {
-            handleData(channelID, fileID, packetID);
+            fileTracker.eraseUntrackedFile(fileID);
         }
 
-        else
-        {
-            handleUntrackedFile(channelID, fileID, packetID);
-        }
+        handleData(channelID, fileID, packetID);
     }
 }
 
@@ -94,77 +97,29 @@ void RXDataReceiver::handleData(int channelID, int fileID, int packetID)
     auto start = this->receivedFiles.at(fileID).begin();
     auto stop = this->receivedFiles.at(fileID).end();
 
-    if ((std::find(start, stop, packetID) == stop) && !this->fullyReceivedFiles.at(fileID))
+    if (!this->fullyReceivedFiles.at(fileID) && (std::find(start, stop, packetID) == stop))
     {
         this->receivedFiles.at(fileID).push_back(packetID);
-
-        if (fileID != currentFileID)
-        {
-            fileName = handlePacket(fileID, channelID);
-            fileID = currentFileID;
-        }
+        fileName = this->redisHandler.getFileName(fileID, channelID);
 
         int packetSize = strnlen(this->buffer, this->bufferSize);
 
-        this->fileBuilder.setFile(std::string(FILES_PATH) + "/" + fileName, "wb");
-        this->fileBuilder.writeToFile(this->buffer, packetSize, calculateOffset(fileSize, packetID, packetSize));
+        this->fileBuilder.setFile(std::string(FILES_PATH) + "/" + fileName, 'w');
+        this->fileBuilder.writeToFile(this->buffer, packetSize, fileTracker.fileMonitor.calculateOffset(fileSize, packetID, packetSize));
         this->fileBuilder.closeFile();
     }
 }
 
-int RXDataReceiver::calculateOffset(int fileSize, int packetID, int packetSize)
+void RXDataReceiver::checkUntrackedFile(int channelID, int fileID)
 {
-    /* The function will calculate the offset 
-       which we need to start writing from */
+    /* This thread function will check every 
+       100ms if the meta data of the file arrived */
 
-    int fullBuffersCount = fileSize / (this->bufferSize - (HEX_LENGTH * 3));
-    int offset = 0;
-
-    if (packetSize < (this->bufferSize - (HEX_LENGTH * 3)))
+    while (!redisHandler.fileExists(channelID, fileID))
     {
-        offset = packetID * fullBuffersCount * (this->bufferSize - (HEX_LENGTH * 3));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-    else
-    {
-        offset = packetID * packetSize;
-    }
-
-    return offset;
-}
-
-std::string RXDataReceiver::handlePacket(int fileID, int channelID)
-{
-    /* This function will  */
-
-    std::string fileName = this->redisHandler.getFileName(fileID, channelID);
-    int pos = fileName.find(':');
-
-    if (pos != std::string::npos)
-    {
-        fileName = fileName.substr(0, pos);
-    }
-
-    return fileName;
-}
-
-void RXDataReceiver::checkMaxSize(int fileID, int fileSize)
-{
-    /* This function will check to see if a certain file
-       has already received the maximum amount 
-       of bytes to remove it from the map */
-
-    int currentTotalSize = 0;
-
-    for (auto &packet : this->receivedFiles.at(fileID))
-    {
-        currentTotalSize += this->bufferSize;
-    }
-
-    if (currentTotalSize >= fileSize)
-    {
-        this->receivedFiles.erase(fileID);
-    }
-
-    this->fullyReceivedFiles.at(fileID) = true;
+    this->fileTracker.trackFile(channelID, fileID, this->redisHandler.getFileName(fileID, channelID),
+                                strnlen(this->buffer, this->bufferSize), this->redisHandler.getFileSize(channelID, fileID));
 }

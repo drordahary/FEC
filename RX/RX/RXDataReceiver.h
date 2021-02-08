@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include "RXReceiver.h"
+#include "FileMonitor.h"
+#include "FileTracker.h"
 
 class RXDataReceiver : public RXReceiver
 {
@@ -9,18 +11,14 @@ private:
     FileBuilder fileBuilder;
     Deserializer deserializer;
     RedisHandler redisHandler;
-
-    int currentFileID;
+    FileTracker fileTracker;
+    int lastUpdatedPacketID;
 
     std::map<int, std::vector<int>> receivedFiles;
     std::map<int, bool> fullyReceivedFiles;
-    std::map<int, std::vector<int>> untrackedFiles;
+    std::vector<int> openThreadsForFileID;
 
     void assumeCase();
-
-    std::string handlePacket(int fileID, int channelID);
-    int calculateOffset(int fileSize, int packetID, int packetSize);
-    void checkMaxSize(int fileID, int fileSize);
 
 public:
     RXDataReceiver(unsigned int port, std::string workingChannel, int bufferSize);
@@ -28,8 +26,5 @@ public:
 
     void receiveData();
     void handleData(int channelID, int fileID, int packetID);
-    void handleUntrackedFile(int channelID, int fileID, int packetID);
-    void trackFile(int channelID, int fileID, int packetID);
+    void checkUntrackedFile(int channelID, int fileID);
 };
-
-std::string intToHex(int packetID);

@@ -41,8 +41,7 @@ void RX::preparePorts()
 
 		for (int j = 0; j < this->configs->portsPerChannel; j++)
 		{
-			dataPorts.push_back(this->configs->portOffset +
-								(multiplier * this->configs->portsPerChannel) + j);
+			dataPorts.push_back(this->configs->portOffset + (multiplier * this->configs->portsPerChannel) + j);
 		}
 
 		multiplier++;

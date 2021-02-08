@@ -1,10 +1,12 @@
 #include "FileBuilder.h"
 
-FileBuilder::FileBuilder() : file(NULL)
+FileBuilder::FileBuilder()
 {
 	/* This constructor is used for specific in
 	   class use where the object cannot 
 	   be initialized immediately */
+
+	this->fd = -1;
 }
 
 FileBuilder::~FileBuilder()
@@ -13,27 +15,24 @@ FileBuilder::~FileBuilder()
 	   all the allocated memory of the object */
 }
 
-void FileBuilder::createNewFile(int size, std::string fileName)
-{
-	/* This function will create a sparse file, 
-	   enabling us to write to it from ant position */
-
-	this->file = fopen(fileName.c_str(), "wb");
-	fseek(file, size - 1, SEEK_SET);
-	fputc('\0', file);
-	fclose(this->file);
-}
-
-void FileBuilder::setFile(std::string filename, const char *option)
+void FileBuilder::setFile(std::string filename, const char option)
 {
 	/* The function will initialize ofstream.
 	   If the file doesn't exists it'll create one */
 
-	this->file = fopen(filename.c_str(), option);
-
-	if (this->file == NULL)
+	if (option == 'a')
 	{
-		printf("Error while trying to opening / creating the file");
+		this->fd = open(filename.c_str(), O_CREAT | O_WRONLY | O_APPEND, 0700);
+	}
+
+	else if (option == 'w')
+	{
+		this->fd = open(filename.c_str(), O_CREAT | O_WRONLY, 0700);
+	}
+
+	if (this->fd == -1)
+	{
+		perror("Error: ");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -43,21 +42,21 @@ void FileBuilder::writeToFile(char buffer[], int bufferLength, int offset)
 	/* The function will receive a buffer as a 
 	   parameter and will append it to the file */
 
-	if (this->file != NULL)
+	if (this->fd != -1)
 	{
-		fseek(this->file, offset, SEEK_SET);
-		fwrite(buffer, sizeof(char), bufferLength, this->file);
+		lseek(this->fd, offset, SEEK_SET);
+		write(this->fd, buffer, bufferLength);
 	}
 }
 
-void FileBuilder::appendToFile(const char *buffer)
+void FileBuilder::appendToFile(const char *buffer, int bufferLength)
 {
 	/* This function will append the buffer data to EOF
 	   Will be mainly used for untracked files */
 
-	if (this->file != NULL)
+	if (this->fd != -1)
 	{
-		fprintf(this->file, "%s", buffer);
+		write(this->fd, buffer, bufferLength);
 	}
 }
 
@@ -66,8 +65,16 @@ void FileBuilder::closeFile()
 	/* This function will be called if the program
 	   crashes or the program finished */
 
-	if (this->file != NULL)
+	if (this->fd != -1)
 	{
-		fclose(this->file);
+		close(this->fd);
 	}
+}
+
+void FileBuilder::flushBuffer()
+{
+	/* The function will make sure the buffer is
+	   flushed so it is being written to the file */
+
+	fsync(this->fd);
 }

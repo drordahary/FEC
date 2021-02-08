@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+#include "FileMonitor.h"
 #include "FileBuilder.h"
 
 #define UNTRACKED "./Untracked"
@@ -17,13 +18,16 @@ private:
     int bufferSize;
 
 public:
+    FileMonitor fileMonitor;
     FileTracker(int bufferSize);
     ~FileTracker();
 
     void handleUntrackedFile(int channelID, int fileID, int packetID, const char *buffer);
-    void trackFile(int channelID, int fileID, int packetID, std::string fileName, int size);
+    void trackFile(int channelID, int fileID, std::string fileName, int packetSize, int fileSize);
 
     void writeData(int channelID, int fileID, int packetID, const char *buffer);
+    void eraseUntrackedFile(int fileID);
+    bool isFileUntracked(int fileID);
 };
 
 std::string intToHex(int packetID);

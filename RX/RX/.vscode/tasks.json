@@ -16,6 +16,8 @@
 				"RXMetaDataReceiver.cpp",
 				"HierarchyBuilder.cpp",
 				"Settings.cpp",
+				"FileTracker.cpp",
+				"FileMonitor.cpp",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}",
 				"-lhiredis",

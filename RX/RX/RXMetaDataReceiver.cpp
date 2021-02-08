@@ -55,8 +55,6 @@ void RXMetaDataReceiver::organizeData(std::string metaData)
     setMetaData();
 
     createStructure(FILES_PATH, this->fileMetaData->filename);
-    this->fileBuilder.createNewFile(this->fileMetaData->size, std::string(FILES_PATH) + "/" +
-                                                                  this->fileMetaData->filename);
 
     saveToRedis();
     runTime++;

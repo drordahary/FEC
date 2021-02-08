@@ -48,7 +48,7 @@ bool RedisHandler::fileExists(int channelID, int fileID)
     std::string command = "hmget channelID:" + std::to_string(channelID) + " fileID:" + std::to_string(fileID);
     this->reply = (redisReply *)redisCommand(this->context, command.c_str());
 
-    bool exists = reply->type != REDIS_REPLY_NIL;
+    bool exists = reply->element[0]->str != NULL;
     freeReplyObject(this->reply);
     return exists;
 }
@@ -163,6 +163,13 @@ std::string RedisHandler::getFileName(int fileID, int channelID)
     checkExecution();
 
     std::string fileName = this->reply->element[0]->str;
+    
+    int pos = fileName.find(':');
+
+    if (pos != std::string::npos)
+    {
+        fileName = fileName.substr(0, pos);
+    }
 
     freeReplyObject(this->reply);
 
