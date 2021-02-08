@@ -57,13 +57,10 @@ void TXDataSender::preparePackets(int filesize, int fileID, std::string path, in
 
 			readFile(amountToRead, position);
 			this->serializer.serializePacket(this->buffer, fileID, channelID);
-
 			sendPacket();
 
 			position += amountToRead;
 			leftToRead -= amountToRead;
-
-			std::fill(this->buffer, this->buffer + (this->bufferSize + 1), '\0');
 		}
 
 		this->fileReader.closeFile();

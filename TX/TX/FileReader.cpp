@@ -24,11 +24,10 @@ void FileReader::setFile(const char *filepath)
 		std::cout << "Error while trying to open the file. check if the file exists first" << std::endl;
 	}
 
-	this->file.seekg(0, std::ios::end);
-
-	this->filesize = this->file.tellg();
-
-	this->file.seekg(0, std::ios::beg);
+	file.ignore(std::numeric_limits<std::streamsize>::max());
+	this->filesize = file.gcount();
+	file.clear(); //  Since ignore will have set eof.
+	file.seekg(0, std::ios_base::beg);
 }
 
 void FileReader::readFile(int amountToRead, int position, char buffer[])
