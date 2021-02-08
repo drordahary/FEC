@@ -12,6 +12,7 @@ ThreadPool::ThreadPool(std::string workingChannel, std::vector<int> portRange,
     for (auto port = portRange.begin(); port != portRange.end(); port++)
     {
         this->pool.push_back(std::thread(&ThreadPool::waitForJob, this, *port, channelID));
+        slog_info("data port number: %d started", *port);
     }
 }
 
@@ -62,16 +63,19 @@ void ThreadPool::startJob(std::string data, int port, int channelID)
     std::string splittedData[2];
 
     char delimeter = ',';
+    slog_trace("data is: %s", data.c_str());
     size_t position = data.find(delimeter);
 
     splittedData[0] = data.substr(0, position);
     data.erase(0, position + 1);
     splittedData[1] = data;
 
+    slog_trace("file is: %s", splittedData[0].c_str());
     reader.setFile(splittedData[0].c_str());
     int size = reader.getFileSize();
     reader.closeFile();
 
+    slog_trace("file ID is: %s", splittedData[1].c_str());
     int fileID = std::stoi(splittedData[1]);
 
     sender.preparePackets(size, fileID, splittedData[0], channelID);

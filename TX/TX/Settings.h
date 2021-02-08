@@ -29,6 +29,7 @@ public:
     Settings();
     ~Settings();
     void fetchResults();
+    void initializeLogger();
     void organizeResults(std::vector<std::string> results);
     Configurations *getConfigs();
 };

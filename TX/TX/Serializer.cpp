@@ -19,7 +19,7 @@ Serializer::~Serializer()
 	delete this->serializedBuffer;
 }
 
-void Serializer::serializePacket(char buffer[], int fileID, int channelID)
+int Serializer::serializePacket(char buffer[], int fileID, int channelID)
 {
 	/* This function will serialize the buffer so the 
 	   first 30 characters are a hexadecimals values
@@ -39,7 +39,7 @@ void Serializer::serializePacket(char buffer[], int fileID, int channelID)
 	std::copy(this->serializedBuffer, this->serializedBuffer + this->bufferSize + 1, buffer);
 
 	std::fill(this->serializedBuffer, this->serializedBuffer + this->bufferSize + 1, '\0');
-	this->packetCount++;
+	return this->packetCount++;
 }
 
 std::string Serializer::intToHex(int ID)

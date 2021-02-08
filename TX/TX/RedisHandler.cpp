@@ -30,12 +30,14 @@ void RedisHandler::connectToRedis()
         exit(EXIT_FAILURE);
     }
 
+    slog_trace("database ID: %d", this->databaseID);
     std::string command = "select " + std::to_string(this->databaseID);
 
     this->reply = (redisReply *)redisCommand(this->context, command.c_str());
     checkExecution();
 
     freeReplyObject(this->reply);
+    slog_info("redis initialized successfully");
 }
 
 void RedisHandler::addMetaData(std::map<std::string, std::string> &fields, std::string &key)
@@ -50,6 +52,7 @@ void RedisHandler::addMetaData(std::map<std::string, std::string> &fields, std::
     argv.push_back(command);
     arglen.push_back(sizeof(command) - 1);
 
+    slog_trace("received key: %s", key.c_str());
     argv.push_back(key.c_str());
     arglen.push_back(key.size());
 
@@ -66,7 +69,7 @@ void RedisHandler::addMetaData(std::map<std::string, std::string> &fields, std::
     void *r = redisCommandArgv(this->context, argv.size(), &(argv[0]), &(arglen[0]));
     if (!r)
     {
-        std::cout << "Couldn't perform operation" << std::endl;
+        slog_fatal("could not save to redis");
         exit(EXIT_FAILURE);
     }
 
@@ -86,10 +89,11 @@ int RedisHandler::getLastChannelID()
 
     if (!this->reply || this->context->err || this->reply->type != REDIS_REPLY_STRING)
     {
-        std::cout << "Couldn't read from redis" << std::endl;
+        slog_fatal("could not read from redis");
         exit(EXIT_FAILURE);
     }
 
+    slog_trace("reply returned with %s", this->reply->str);
     int lastChannelID = atoi(this->reply->str);
 
     freeReplyObject(this->reply);
@@ -107,10 +111,11 @@ int RedisHandler::getDirectoryCount()
 
     if (!this->reply || this->context->err || this->reply->type != REDIS_REPLY_STRING)
     {
-        std::cout << "Couldn't read from redis" << std::endl;
+        slog_fatal("could not read from redis");
         exit(EXIT_FAILURE);
     }
 
+    slog_trace("reply returned with %s", this->reply->str);
     int dirCount = atoi(this->reply->str);
 
     freeReplyObject(this->reply);
@@ -122,11 +127,13 @@ std::string RedisHandler::getChannelName(int channelID)
     /* The function will return the channel
        name based on the given ID */
 
+    slog_trace("channel ID: %d", channelID);
     std::string command = "get dirID:" + std::to_string(channelID);
 
     this->reply = (redisReply *)redisCommand(this->context, command.c_str());
     checkExecution();
 
+    slog_trace("reply returned with %s", this->reply->str);
     std::string channelName = this->reply->str;
     freeReplyObject(this->reply);
 
@@ -138,11 +145,13 @@ std::string RedisHandler::getValue(std::string key)
     /* This function will simply get
        a value from Redis by key */
 
+    slog_trace("key is: %s", key.c_str());
     std::string command = "get " + key;
 
     this->reply = (redisReply *)redisCommand(this->context, command.c_str());
     checkExecution();
 
+    slog_trace("reply returned with %s", this->reply->str);
     std::string value = this->reply->str;
     freeReplyObject(this->reply);
 
@@ -157,9 +166,11 @@ void RedisHandler::setChannels(std::vector<std::string> &channels)
     this->reply = (redisReply *)redisCommand(this->context, "get dirCount");
     checkExecution();
 
+    slog_trace("reply returned with %s", this->reply->str);
     int dirCount = std::stoi(this->reply->str);
     freeReplyObject(this->reply);
 
+    slog_trace("dirCount is: %d", dirCount);
     std::string command = "lrange channels 0 " + std::to_string(dirCount);
     this->reply = (redisReply *)redisCommand(this->context, command.c_str());
 
@@ -174,16 +185,6 @@ void RedisHandler::setChannels(std::vector<std::string> &channels)
     freeReplyObject(this->reply);
 }
 
-std::string RedisHandler::formatCommand(std::string fileMetaData[], int fileID)
-{
-    /* The function will format the command to be executable.
-       The format is: (fileID, fileName, fileSize) */
-
-    std::string command = "hmset fileID:" + std::to_string(fileID) + " fileName " + fileMetaData[0] + " fileSize " + fileMetaData[1];
-
-    return command;
-}
-
 void RedisHandler::checkExecution()
 {
     /* Checks if it is possible to execute the command.
@@ -191,7 +192,7 @@ void RedisHandler::checkExecution()
 
     if (!this->reply || this->context->err)
     {
-        std::cout << "Couldn't execute command" << std::endl;
+        slog_fatal("could not execute command");
         exit(EXIT_FAILURE);
     }
 }
@@ -206,6 +207,7 @@ std::string RedisHandler::getFileName(int fileID)
     this->reply = (redisReply *)redisCommand(this->context, command.c_str());
     checkExecution();
 
+    slog_trace("reply returned with %s", this->reply->element[0]->str);
     std::string fileName = this->reply->element[0]->str;
 
     freeReplyObject(this->reply);

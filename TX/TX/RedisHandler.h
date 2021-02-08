@@ -6,6 +6,7 @@
 #include <mutex>
 #include <map>
 #include <vector>
+#include <slog.h>
 
 class RedisHandler
 {
@@ -15,7 +16,6 @@ private:
     int databaseID;
 
     void checkExecution();
-    std::string formatCommand(std::string fileMetaData[], int fileID);
 
 public:
     static std::mutex mLock;

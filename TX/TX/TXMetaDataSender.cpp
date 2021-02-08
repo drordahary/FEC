@@ -70,9 +70,9 @@ void TXMetaDataSender::sendMetaData()
                 // < Moving the file, building the buffer and sending the packet > //
 
                 this->directoryReader.moveFile(TOSEND_PATH, *start, trimmedPath);
+                slog_info("file: %s moved to ToSend", (*start).c_str());
 
                 bufferBuilder();
-                std::cout << this->buffer << std::endl;
                 sendPacket();
 
                 this->pool->addJob(std::string(TOSEND_PATH) + "/" + *start + "," + std::to_string(lastUpdatedFileID), channelID);
@@ -82,6 +82,7 @@ void TXMetaDataSender::sendMetaData()
             }
 
             saveToRedis();
+            slog_info("saved meta data info to redis");
             this->paths.clear();
         }
 

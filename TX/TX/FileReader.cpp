@@ -21,12 +21,14 @@ void FileReader::setFile(const char *filepath)
 
 	if (!this->file.is_open())
 	{
-		std::cout << "Error while trying to open the file. check if the file exists first" << std::endl;
+		slog_fatal("could not open file");
+		exit(EXIT_FAILURE);
 	}
 
 	file.ignore(std::numeric_limits<std::streamsize>::max());
 	this->filesize = file.gcount();
-	file.clear(); //  Since ignore will have set eof.
+	slog_trace("size of the file %s is: %d", filepath, this->filesize);
+	file.clear();
 	file.seekg(0, std::ios_base::beg);
 }
 

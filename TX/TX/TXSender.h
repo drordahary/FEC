@@ -34,6 +34,7 @@ public:
     ~TXSender();
 
     void sendPacket();
+    void sendPacket(int packetID);
 
     static int lastIDUpdated;
 };

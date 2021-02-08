@@ -20,6 +20,7 @@ TX::~TX()
 	   the connection to the database */
 
 	this->redisHandler.closeConnection();
+	slog_destroy();
 }
 
 void TX::preparePorts()
@@ -39,8 +40,7 @@ void TX::preparePorts()
 
 		for (int j = 0; j < this->configs->portsPerChannel; j++)
 		{
-			dataPorts.push_back(this->configs->portOffset +
-								(multiplier * this->configs->portsPerChannel) + j);
+			dataPorts.push_back(this->configs->portOffset + (multiplier * this->configs->portsPerChannel) + j);
 		}
 
 		multiplier++;
@@ -69,11 +69,13 @@ void TX::openMetaDataPorts()
 											   dataPorts.begin() + currentOffset + this->configs->portsPerChannel);
 
 		pools.push_back(new ThreadPool(*channel, currentWorkingChannel, currentChannelID, configs));
+		slog_info("thread pool started for port: %d", *port);
 
 		senders.push_back(new TXMetaDataSender(this->configs->dstIP, *port, *channel, currentChannelID, this->configs->bufferSize, pools.back()));
 
 		std::thread senderThread(&TXMetaDataSender::sendMetaData, senders.back());
 		openThreads.push_back(std::move(senderThread));
+		slog_info("meta data thread port: %d started", *port);
 
 		channel++;
 		currentChannelID++;

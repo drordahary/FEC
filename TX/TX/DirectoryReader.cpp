@@ -82,7 +82,7 @@ void DirectoryReader::moveFile(std::string to, std::string from)
 
     if (rename(from.c_str(), to.c_str()) != 0)
     {
-        std::cout << "Couldn't move the file to a new location" << std::endl;
+        slog_fatal("cannot move file to a new location");
         exit(EXIT_FAILURE);
     }
 }

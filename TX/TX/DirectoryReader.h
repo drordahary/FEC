@@ -4,6 +4,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <vector>
+#include <slog.h>
 
 #define IS_FILE 0x8
 #define TOSEND_PATH "./ToSend"

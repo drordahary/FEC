@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <limits>
+#include <slog.h>
 
 #define BUFFER_SIZE 512
 

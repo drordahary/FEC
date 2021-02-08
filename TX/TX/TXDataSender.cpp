@@ -37,14 +37,17 @@ void TXDataSender::preparePackets(int filesize, int fileID, std::string path, in
 
 	for (int i = 0; i < this->timesToSend; i++)
 	{
+		slog_trace("path is: %s", path.c_str());
 		this->fileReader.setFile(path.c_str());
 
 		int position = 0;
 		int amountToRead = 0;
 		int leftToRead = filesize;
+		int packetID;
 
 		while (leftToRead > 0)
 		{
+			slog_trace("left to read: %d", leftToRead);
 			if (leftToRead >= this->bufferSize - (HEX_LENGTH * 3))
 			{
 				amountToRead = this->bufferSize - (HEX_LENGTH * 3);
@@ -55,9 +58,10 @@ void TXDataSender::preparePackets(int filesize, int fileID, std::string path, in
 				amountToRead = leftToRead;
 			}
 
+			slog_trace("amount to read: %d, postion: %d", amountToRead, position);
 			readFile(amountToRead, position);
-			this->serializer.serializePacket(this->buffer, fileID, channelID);
-			sendPacket();
+			packetID = this->serializer.serializePacket(this->buffer, fileID, channelID);
+			sendPacket(packetID);
 
 			position += amountToRead;
 			leftToRead -= amountToRead;
@@ -71,6 +75,7 @@ void TXDataSender::preparePackets(int filesize, int fileID, std::string path, in
 	std::string moveTo = std::string(ARCHIVE_PATH) + "/" + pathToChannel;
 
 	this->directoryReader.moveFile(moveTo, path);
+	slog_info("file %s moved to archive", path.c_str());
 }
 
 int nthOccurrence(const std::string &str, const std::string &find, int nth)

@@ -20,6 +20,6 @@ public:
 
 	void resetPacketCount();
 
-	void serializePacket(char buffer[], int fileID, int channelID);
+	int serializePacket(char buffer[], int fileID, int channelID);
 	std::string intToHex(int ID);
 };
