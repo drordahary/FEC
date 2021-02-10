@@ -70,10 +70,9 @@ void RX::openMetaDataPorts()
 
 		std::thread receiverThread(&RXMetaDataReceiver::receiveMetaData, receivers.back());
 		openThreads.push_back(std::move(receiverThread));
+		slog_info("meta data channel port number %d started", *port);
 
 		channel++;
-
-		std::cout << "Meta Data port number " << *port << " started..." << std::endl;
 	}
 
 	int size = openThreads.size();
@@ -107,8 +106,8 @@ void RX::openDataPorts()
 
 			std::thread receiverThread(&RXDataReceiver::receiveData, receivers.back());
 			openThreads.push_back(std::move(receiverThread));
+			slog_info("data channel port number %d started", *port);
 
-			std::cout << "Data port number " << *port << " started..." << std::endl;
 			port++;
 		}
 	}

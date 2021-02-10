@@ -32,7 +32,7 @@ void FileBuilder::setFile(std::string filename, const char option)
 
 	if (this->fd == -1)
 	{
-		perror("Error: ");
+		slog_fatal("could not open file: %s", filename.c_str());
 		exit(EXIT_FAILURE);
 	}
 }

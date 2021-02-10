@@ -38,6 +38,7 @@ void RXMetaDataReceiver::organizeData(std::string metaData)
     /* The function will split the metaData
        and will also set the struct FileMetaData */
 
+    slog_trace("meta data is: %s", metaData.c_str());
     char delimeter = ',';
     size_t position = 0;
 
@@ -57,7 +58,7 @@ void RXMetaDataReceiver::organizeData(std::string metaData)
     createStructure(FILES_PATH, this->fileMetaData->filename);
 
     saveToRedis();
-    runTime++;
+    slog_info("saved meta data to redis");
 }
 
 void RXMetaDataReceiver::setMetaData()

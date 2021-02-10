@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
+#include <slog.h>
 
 #define FILES_PATH "./Files"
 

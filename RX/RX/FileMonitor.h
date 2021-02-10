@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <map>
+#include <slog.h>
 
 #define _HEX_LENGTH 10
 

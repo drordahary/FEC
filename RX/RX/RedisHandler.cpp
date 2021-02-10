@@ -38,6 +38,7 @@ void RedisHandler::connectToRedis()
     checkExecution();
 
     freeReplyObject(this->reply);
+    slog_info("initialized connection to redis");
 }
 
 bool RedisHandler::fileExists(int channelID, int fileID)
@@ -48,6 +49,7 @@ bool RedisHandler::fileExists(int channelID, int fileID)
     std::string command = "hmget channelID:" + std::to_string(channelID) + " fileID:" + std::to_string(fileID);
     this->reply = (redisReply *)redisCommand(this->context, command.c_str());
 
+    slog_trace("reply returned with %s", reply->element[0]->str);
     bool exists = reply->element[0]->str != NULL;
     freeReplyObject(this->reply);
     return exists;
@@ -58,6 +60,7 @@ void RedisHandler::addMetaData(std::map<std::string, std::string> &fields, std::
     /* This function will update Redis with a set of files metadata
        and will use the command HMSET for that operation */
 
+    slog_trace("key is %s", key.c_str());
     std::vector<const char *> argv;
     std::vector<size_t> arglen;
 
@@ -87,6 +90,7 @@ void RedisHandler::addMetaData(std::map<std::string, std::string> &fields, std::
 
     freeReplyObject(r);
 
+    slog_trace("channelIDAdded is: %d", channelIDAdded);
     if (!channelIDAdded)
     {
         this->reply = (redisReply *)redisCommand(this->context, "incr currentAmount");
@@ -104,10 +108,11 @@ int RedisHandler::getLastChannelID()
 
     if (!this->reply || this->context->err || this->reply->type != REDIS_REPLY_STRING)
     {
-        std::cout << "Couldn't read from redis" << std::endl;
+        slog_fatal("could not read from redis");
         exit(EXIT_FAILURE);
     }
 
+    slog_trace("reply returned with: %s", this->reply->str);
     int lastChannelID = atoi(this->reply->str);
 
     freeReplyObject(this->reply);
@@ -125,10 +130,11 @@ int RedisHandler::getDirectoryCount()
 
     if (!this->reply || this->context->err || this->reply->type != REDIS_REPLY_STRING)
     {
-        std::cout << "Couldn't read from redis" << std::endl;
+        slog_fatal("could not read from redis");
         exit(EXIT_FAILURE);
     }
 
+    slog_trace("reply returned with: %s", this->reply->str);
     int dirCount = atoi(this->reply->str);
 
     freeReplyObject(this->reply);
@@ -156,12 +162,11 @@ std::string RedisHandler::getFileName(int fileID, int channelID)
     /* The function will receive a file ID to
        search for and will return the file name */
 
-    std::string command = "hmget channelID:" + std::to_string(channelID) + " fileID:" +
-                          std::to_string(fileID);
-
+    std::string command = "hmget channelID:" + std::to_string(channelID) + " fileID:" + std::to_string(fileID);
     this->reply = (redisReply *)redisCommand(this->context, command.c_str());
     checkExecution();
 
+    slog_trace("reply returned with: %s", this->reply->element[0]->str);
     std::string fileName = this->reply->element[0]->str;
     
     int pos = fileName.find(':');
@@ -176,16 +181,6 @@ std::string RedisHandler::getFileName(int fileID, int channelID)
     return fileName;
 }
 
-std::string RedisHandler::formatCommand(std::string fileMetaData[], int fileID)
-{
-    /* The function will format the command to be executable.
-       The format is: (fileID, fileName, fileSize) */
-
-    std::string command = "hmset fileID:" + std::to_string(fileID) + " fileName " + fileMetaData[0] + " fileSize " + fileMetaData[1];
-
-    return command;
-}
-
 void RedisHandler::checkExecution()
 {
     /* Checks if it is possible to execute the command.
@@ -193,7 +188,7 @@ void RedisHandler::checkExecution()
 
     if (!this->reply || this->context->err)
     {
-        std::cout << "Couldn't execute command" << std::endl;
+        slog_fatal("could not execute command");
         exit(EXIT_FAILURE);
     }
 }
@@ -208,6 +203,7 @@ std::string RedisHandler::getValue(std::string key)
     this->reply = (redisReply *)redisCommand(this->context, command.c_str());
     checkExecution();
 
+    slog_trace("reply returned with: %s", this->reply->str);
     std::string value = this->reply->str;
     freeReplyObject(this->reply);
 
@@ -219,12 +215,12 @@ int RedisHandler::getFileSize(int channelID, int fileID)
     /* This function will get the file size
        from given channel ID and file ID */
 
-    std::string command = "hmget channelID:" + std::to_string(channelID) +
-                          " fileID:" + std::to_string(fileID);
+    std::string command = "hmget channelID:" + std::to_string(channelID) + " fileID:" + std::to_string(fileID);
 
     this->reply = (redisReply *)redisCommand(this->context, command.c_str());
     checkExecution();
 
+    slog_trace("reply returned with: %s", this->reply->element[0]->str);
     std::string metaData = this->reply->element[0]->str;
     freeReplyObject(this->reply);
 
@@ -240,6 +236,7 @@ void RedisHandler::setChannels(std::vector<std::string> &channels)
     this->reply = (redisReply *)redisCommand(this->context, "get dirCount");
     checkExecution();
 
+    slog_trace("reply returned with: %s", this->reply->str);
     int dirCount = std::stoi(this->reply->str);
     freeReplyObject(this->reply);
 

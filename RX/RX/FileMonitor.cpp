@@ -37,5 +37,6 @@ int FileMonitor::calculateOffset(int fileSize, int packetID, int packetSize)
         offset = packetID * packetSize;
     }
 
+    slog_trace("calculated offset for %d is: %d", packetID, offset);
     return offset;
 }

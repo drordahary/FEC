@@ -7,6 +7,7 @@ Settings::Settings() : redisHandler(REDIS_DB)
 
     this->configs = new Configurations();
     fetchResults();
+    initializeLogger();
 }
 
 Settings::~Settings()
@@ -63,4 +64,29 @@ Configurations *Settings::getConfigs()
        configuration struct */
 
     return this->configs;
+}
+
+void Settings::initializeLogger()
+{
+    /* This function will initialize 
+       everything the logger needs */
+
+    slog_init("logfile", SLOG_FLAGS_ALL, 1);
+
+    SLogConfig slgCfg;
+
+    slgCfg.eColorFormat = SLOG_COLOR_FULL;
+
+    strncpy(slgCfg.sFileName, "logfile", 256);
+    strncpy(slgCfg.sFilePath, "./Logs/", 256);
+
+    slgCfg.nTraceTid = 1;
+    slgCfg.nToScreen = 0;
+    slgCfg.nToFile = 1;
+    slgCfg.nFlush = 0;
+    slgCfg.nFlags = SLOG_FLAGS_ALL;
+
+    slog_config_set(&slgCfg);
+
+    slog_info("slog initialize succeeded");
 }

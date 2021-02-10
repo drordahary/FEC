@@ -51,6 +51,7 @@ void FileTracker::writeData(int channelID, int fileID, int packetID, const char 
        the meta data of the packet and then the data */
 
     std::string fileName = std::string(UNTRACKED) + "/" + std::to_string(channelID) + std::to_string(fileID);
+    slog_trace("untracked file name: %s", fileName.c_str());
     this->fileBuilder.setFile(fileName, 'a');
 
     std::string metaData = intToHex(packetID) + "," + std::to_string(strnlen(buffer, this->bufferSize)) + "\n";
@@ -68,9 +69,11 @@ void FileTracker::trackFile(int channelID, int fileID, std::string fileName, int
        file that received meta data and can be used normally */
 
     std::string read = std::string(UNTRACKED) + "/" + std::to_string(channelID) + std::to_string(fileID);
+    slog_trace("file to read from is: %s", read.c_str());
     this->readFrom = fopen(read.c_str(), "rb");
 
     std::string newFileName = std::string(FILES_PATH) + "/" + fileName;
+    slog_trace("file to write to: %s", newFileName);
     this->fileBuilder.setFile(newFileName.c_str(), 'w');
 
     int offset = 0;
@@ -88,6 +91,7 @@ void FileTracker::trackFile(int channelID, int fileID, std::string fileName, int
         offset += getline(&buffer, &len, this->readFrom);
 
         std::string metaData = buffer;
+        slog_trace("meta data is: %s", metaData.c_str());
         packetID = std::stoul(metaData.substr(0, metaData.find(',')), nullptr, 16);
         amountToRead = std::stoi(metaData.substr(metaData.find(',') + 1, metaData.length()));
 
