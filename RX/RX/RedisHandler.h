@@ -15,7 +15,7 @@ private:
     redisReply *reply;
     int databaseID;
 
-    void checkExecution();
+    void checkExecution(std::string command);
 
 public:
     static std::mutex mLock;

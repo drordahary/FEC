@@ -22,12 +22,12 @@ void FileBuilder::setFile(std::string filename, const char option)
 
 	if (option == 'a')
 	{
-		this->fd = open(filename.c_str(), O_CREAT | O_WRONLY | O_APPEND, 0700);
+		this->fd = open(filename.c_str(), O_CREAT | O_WRONLY | O_APPEND, 0777);
 	}
 
 	else if (option == 'w')
 	{
-		this->fd = open(filename.c_str(), O_CREAT | O_WRONLY, 0700);
+		this->fd = open(filename.c_str(), O_CREAT | O_WRONLY, 0777);
 	}
 
 	if (this->fd == -1)
