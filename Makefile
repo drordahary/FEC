@@ -39,6 +39,6 @@ install-services:
 		sudo bash -c 'echo >> /etc/systemd/system/RX.service'; \
 		sudo bash -c 'echo "[Install]" >> /etc/systemd/system/RX.service'; \
 		sudo bash -c 'echo "WantedBy=multi-user.target" >> /etc/systemd/system/RX.service'; \
-		cd /etc/systemd/system/ && sudo systemctl start RX.service; \
 		cd /etc/systemd/system/ && sudo systemctl enable RX.service; \
+		cd /etc/systemd/system/ && sudo systemctl start RX.service; \
 	fi;
