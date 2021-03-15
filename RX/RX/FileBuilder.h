@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -15,6 +16,7 @@ class FileBuilder
 {
 private:
 	int fd;
+	std::string fileName;
 
 public:
 	FileBuilder();

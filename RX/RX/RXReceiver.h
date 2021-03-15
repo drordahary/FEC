@@ -32,15 +32,15 @@ class RXReceiver
 {
 protected:
     Socket *sock;
-    int sockfd;
     char *buffer;
     int bufferSize;
 
     std::string workingChannel;
 
-    void receivePacket();
+    int receivePacket();
 
 public:
     RXReceiver(unsigned int port, std::string workingChannel, int bufferSize);
-    ~RXReceiver();
+    virtual ~RXReceiver();
+    int getSocket();
 };

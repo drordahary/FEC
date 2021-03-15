@@ -6,7 +6,6 @@ RXReceiver::RXReceiver(unsigned int port, std::string workingChannel, int buffer
        port to initialize the socket */
 
     this->sock = new Socket();
-    this->sockfd = this->sock->sc;
 
     if ((this->sock->sc = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     {
@@ -38,17 +37,33 @@ RXReceiver::~RXReceiver()
 
     close(this->sock->sc);
     delete this->sock;
-    delete this->buffer;
+    delete[] this->buffer;
 }
 
-void RXReceiver::receivePacket()
+int RXReceiver::receivePacket()
 {
     /* The function will only receive
        one single packet each time */
 
-    if (this->sock->recv_len = recvfrom(this->sock->sc, this->buffer, this->bufferSize + 1, 0, (struct sockaddr *)&(this->sock->cliaddr), &(this->sock->slen)) < 0)
+    this->sock->recv_len = 0;
+
+    if ((this->sock->recv_len = recvfrom(this->sock->sc, this->buffer, this->bufferSize + 1, 0, (struct sockaddr *)&(this->sock->cliaddr), &(this->sock->slen))) < 0)
     {
-        std::cout << "Failed to receive" << std::endl;
-        exit(EXIT_FAILURE);
+        return 0; // Receive failed OR the socket was shutdown
     }
+
+    if (this->sock->recv_len == 0)
+    {
+        return 0;
+    }
+
+    return 1;
+}
+
+int RXReceiver::getSocket()
+{
+    /* This function will return the socket file descriptor 
+       as it will be used to shutdown the socket */
+
+    return this->sock->sc;
 }

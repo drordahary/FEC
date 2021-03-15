@@ -17,7 +17,6 @@ Settings::~Settings()
        and will also close the connection to Redis */
 
     delete this->configs;
-    this->redisHandler.closeConnection();
 }
 
 void Settings::fetchResults()

@@ -15,8 +15,7 @@ private:
     int lastUpdatedPacketID;
 
     std::map<int, std::vector<int>> receivedFiles;
-    std::map<int, bool> fullyReceivedFiles;
-    std::vector<int> openThreadsForFileID;
+    std::map<int, bool> handlingThreads;
 
     void assumeCase();
 

@@ -35,6 +35,8 @@ void FileBuilder::setFile(std::string filename, const char option)
 		slog_fatal("could not open file: %s", filename.c_str());
 		exit(EXIT_FAILURE);
 	}
+
+	this->fileName = filename;
 }
 
 void FileBuilder::writeToFile(char buffer[], int bufferLength, int offset)

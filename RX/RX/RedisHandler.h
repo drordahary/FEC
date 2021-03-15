@@ -6,6 +6,7 @@
 #include <mutex>
 #include <map>
 #include <vector>
+#include <thread>
 #include <slog.h>
 
 class RedisHandler
@@ -36,10 +37,9 @@ public:
 
     int getLastChannelID();
     std::string getFileName(int fileID, int channelID);
+    std::string splitDataFileName();
     int getFileSize(int channelID, int fileID);
 
     std::string getValue(std::string key);
     void setChannels(std::vector<std::string>& channels);
-
-    void closeConnection();
 };

@@ -14,7 +14,7 @@ Deserializer::~Deserializer()
 	/* The destructor will delete automatically
 	   all the allocated memory of the object */
 
-	delete this->deserializedBuffer;
+	delete[] this->deserializedBuffer;
 }
 
 void Deserializer::deserializePacket(char buffer[])

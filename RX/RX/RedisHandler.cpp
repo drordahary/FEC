@@ -162,21 +162,34 @@ std::string RedisHandler::getFileName(int fileID, int channelID)
     /* The function will receive a file ID to
        search for and will return the file name */
 
+    std::string fileName;
+
     std::string command = "hmget channelID:" + std::to_string(channelID) + " fileID:" + std::to_string(fileID);
     this->reply = (redisReply *)redisCommand(this->context, command.c_str());
     checkExecution(command);
 
     slog_trace("reply returned with: %s", this->reply->element[0]->str);
+    fileName = splitDataFileName();
+
+    freeReplyObject(this->reply);
+
+    slog_trace("file name returning from redis is: %s", fileName.c_str());
+    return fileName;
+}
+
+std::string RedisHandler::splitDataFileName()
+{
+    /* This function will split the data received 
+       from Redis and will return only the file name */
+
     std::string fileName = this->reply->element[0]->str;
-    
+
     int pos = fileName.find(':');
 
     if (pos != std::string::npos)
     {
         fileName = fileName.substr(0, pos);
     }
-
-    freeReplyObject(this->reply);
 
     return fileName;
 }
@@ -252,12 +265,4 @@ void RedisHandler::setChannels(std::vector<std::string> &channels)
     }
 
     freeReplyObject(this->reply);
-}
-
-void RedisHandler::closeConnection()
-{
-    /* The function will close the 
-       socket connected to Redis */
-
-    redisFree(this->context);
 }

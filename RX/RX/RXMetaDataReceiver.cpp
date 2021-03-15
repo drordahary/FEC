@@ -15,7 +15,6 @@ RXMetaDataReceiver::~RXMetaDataReceiver()
     /* The destructor will close the socket manually
        and the rest allocated memory automatically */
 
-    this->redisHandler.closeConnection();
     delete this->fileMetaData;
 }
 
@@ -24,12 +23,17 @@ void RXMetaDataReceiver::receiveMetaData()
     /* This function will receive the meta data
        and will save that data to Redis */
 
-    while (true)
+    int receiveCompleted = 1;
+
+    while (receiveCompleted == 1)
     {
         std::fill(this->buffer, this->buffer + (this->bufferSize + 1), 0);
 
-        receivePacket();
-        organizeData(this->buffer);
+        receiveCompleted = receivePacket();
+        if (receiveCompleted == 1)
+        {
+            organizeData(this->buffer);
+        }
     }
 }
 

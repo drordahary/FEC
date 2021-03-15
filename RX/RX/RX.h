@@ -1,6 +1,7 @@
 #include "RXDataReceiver.h"
 #include "RXMetaDataReceiver.h"
 #include "Settings.h"
+#include <signal.h>
 
 class RX
 {

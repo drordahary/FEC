@@ -1,9 +1,37 @@
 #include "RX.h"
 
+std::vector<int> socketsFileDescriptors;
+
+void finish(int signal)
+{
+	/* This function will handle the exit of a program
+	   for example if SIGINT was called (ctrl + C) */
+
+	for (int sockfd : socketsFileDescriptors)
+	{
+		shutdown(sockfd, SHUT_RD);
+	}
+}
+
 int main()
 {
 	/* This main function will initialize connections
 	   and will try to create the sockets */
+
+	struct sigaction sigbreak;
+	sigbreak.sa_handler = &finish;
+	sigemptyset(&sigbreak.sa_mask);
+	sigbreak.sa_flags = 0;
+	
+	if (sigaction(SIGINT, &sigbreak, NULL) != 0)
+	{
+		return 0;
+	}
+
+	if (sigaction(SIGTERM, &sigbreak, NULL) != 0)
+	{
+		return 0;
+	}
 
 	RX rx = RX();
 	rx.preparePorts();
@@ -21,8 +49,6 @@ RX::~RX()
 {
 	/* The destructor will close the 
 	   connection to the database */
-
-	this->redisHandler.closeConnection();
 }
 
 void RX::preparePorts()
@@ -67,6 +93,7 @@ void RX::openMetaDataPorts()
 	for (auto port = metaDataPorts.begin(); port != metaDataPorts.end(); port++)
 	{
 		receivers.push_back(new RXMetaDataReceiver(*port, *channel, this->configs->bufferSize));
+		socketsFileDescriptors.push_back(receivers.back()->getSocket());
 
 		std::thread receiverThread(&RXMetaDataReceiver::receiveMetaData, receivers.back());
 		openThreads.push_back(std::move(receiverThread));
@@ -103,6 +130,7 @@ void RX::openDataPorts()
 		for (int i = 0; i < this->configs->portsPerChannel; i++)
 		{
 			receivers.push_back(new RXDataReceiver(*port, *channel, this->configs->bufferSize));
+			socketsFileDescriptors.push_back(receivers.back()->getSocket());
 
 			std::thread receiverThread(&RXDataReceiver::receiveData, receivers.back());
 			openThreads.push_back(std::move(receiverThread));

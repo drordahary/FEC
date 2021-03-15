@@ -19,7 +19,6 @@ RXDataReceiver::~RXDataReceiver()
     /* The destructor will close first the socket and the file
        and then will automatically free the allocated memory */
 
-    this->redisHandler.closeConnection();
     this->fileBuilder.closeFile();
 }
 
@@ -28,12 +27,17 @@ void RXDataReceiver::receiveData()
     /* This function will listen 
        to incoming UDP packets */
 
-    while (true)
+    int receiveCompleted = 1;
+
+    while (receiveCompleted == 1)
     {
         std::fill(this->buffer, this->buffer + (this->bufferSize + 1), '\0');
 
-        receivePacket();
-        assumeCase();
+        receiveCompleted = receivePacket();
+        if (receiveCompleted == 1)
+        {
+            assumeCase();
+        }
     }
 }
 
@@ -55,19 +59,17 @@ void RXDataReceiver::assumeCase()
     if (!redisHandler.fileExists(channelID, fileID)) // File did not receive meta data
     {
         fileTracker.handleUntrackedFile(channelID, fileID, packetID, this->buffer);
-
-        if (std::find(openThreadsForFileID.begin(), openThreadsForFileID.end(), fileID) == openThreadsForFileID.end())
-        {
-            std::thread(&RXDataReceiver::checkUntrackedFile, this, channelID, fileID).detach();
-            this->openThreadsForFileID.push_back(fileID);
-        }
     }
 
     else
     {
         if (fileTracker.isFileUntracked(fileID)) // Untracked file
         {
+            this->receivedFiles.insert({fileID, fileTracker.getUntrackedPackets(fileID)});
             fileTracker.eraseUntrackedFile(fileID);
+
+            fileTracker.trackFile(channelID, fileID, this->redisHandler.getFileName(fileID, channelID),
+                                  strnlen(this->buffer, this->bufferSize));
         }
 
         handleData(channelID, fileID, packetID);
@@ -91,13 +93,12 @@ void RXDataReceiver::handleData(int channelID, int fileID, int packetID)
     if (this->receivedFiles.find(fileID) == this->receivedFiles.end())
     {
         this->receivedFiles.insert(std::pair<int, std::vector<int>>(fileID, std::vector<int>()));
-        this->fullyReceivedFiles.insert(std::pair<int, bool>(fileID, false));
     }
 
     auto start = this->receivedFiles.at(fileID).begin();
     auto stop = this->receivedFiles.at(fileID).end();
 
-    if (!this->fullyReceivedFiles.at(fileID) && (std::find(start, stop, packetID) == stop))
+    if (std::find(start, stop, packetID) == stop)
     {
         this->receivedFiles.at(fileID).push_back(packetID);
         fileName = this->redisHandler.getFileName(fileID, channelID);
@@ -108,18 +109,4 @@ void RXDataReceiver::handleData(int channelID, int fileID, int packetID)
         this->fileBuilder.writeToFile(this->buffer, packetSize, fileTracker.fileMonitor.calculateOffset(fileSize, packetID, packetSize));
         this->fileBuilder.closeFile();
     }
-}
-
-void RXDataReceiver::checkUntrackedFile(int channelID, int fileID)
-{
-    /* This thread function will check every 
-       100ms if the meta data of the file arrived */
-
-    while (!redisHandler.fileExists(channelID, fileID))
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-
-    this->fileTracker.trackFile(channelID, fileID, this->redisHandler.getFileName(fileID, channelID),
-                                strnlen(this->buffer, this->bufferSize), this->redisHandler.getFileSize(channelID, fileID));
 }
