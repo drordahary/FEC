@@ -169,7 +169,15 @@ std::string RedisHandler::getFileName(int fileID, int channelID)
     checkExecution(command);
 
     slog_trace("reply returned with: %s", this->reply->element[0]->str);
-    fileName = splitDataFileName();
+
+    if (this->reply->element[0]->str == NULL)
+    {
+        fileName = std::to_string(channelID) + std::to_string(fileID);
+    }
+    else
+    {
+        fileName = splitDataFileName();
+    }
 
     freeReplyObject(this->reply);
 

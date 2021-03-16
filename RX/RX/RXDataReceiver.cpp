@@ -70,11 +70,13 @@ void RXDataReceiver::assumeCase()
             if (!this->handlingThreads.at(fileID))
             {
                 this->receivedFiles.insert({fileID, fileTracker.getUntrackedPackets(fileID)});
-                fileTracker.eraseUntrackedFile(fileID);
-
                 fileTracker.trackFile(channelID, fileID, this->redisHandler.getFileName(fileID, channelID),
                                       strnlen(this->buffer, this->bufferSize));
+                                      
+                fileTracker.eraseUntrackedFile(fileID);
             }
+
+            this->handlingThreads[fileID] = false;
         }
 
         handleData(channelID, fileID, packetID);
@@ -133,11 +135,9 @@ void RXDataReceiver::checkUntrackedFile(int channelID, int fileID)
                 this->handlingThreads[fileID] = true;
 
                 this->receivedFiles.insert({fileID, fileTracker.getUntrackedPackets(fileID)});
-                fileTracker.eraseUntrackedFile(fileID);
                 this->fileTracker.trackFile(channelID, fileID, this->redisHandler.getFileName(fileID, channelID),
                                             strnlen(this->buffer, bufferSize));
-                
-                this->handlingThreads[fileID] = false;
+                fileTracker.eraseUntrackedFile(fileID);
             }
 
             return;
