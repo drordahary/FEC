@@ -46,13 +46,13 @@ bool RedisHandler::fileExists(int channelID, int fileID)
     /* The function will check if the 
        file ID is present in the database */
 
-    std::string command = "hmget channelID:" + std::to_string(channelID) + " fileID:" + std::to_string(fileID);
+    std::string command = "hexists channelID:" + std::to_string(channelID) + " fileID:" + std::to_string(fileID);
     this->reply = (redisReply *)redisCommand(this->context, command.c_str());
 
-    slog_trace("reply returned with %s", reply->element[0]->str);
-    bool exists = reply->element[0]->str != NULL;
+    int exists = this->reply->integer;
+    slog_trace("reply returned with: %d", exists);
     freeReplyObject(this->reply);
-    return exists;
+    return exists == 1;
 }
 
 void RedisHandler::addMetaData(std::map<std::string, std::string> &fields, std::string &key, bool channelIDAdded)
@@ -105,12 +105,6 @@ int RedisHandler::getLastChannelID()
        (largest) file ID number in redis */
 
     this->reply = (redisReply *)redisCommand(this->context, "get currentAmount");
-
-    if (!this->reply || this->context->err || this->reply->type != REDIS_REPLY_STRING)
-    {
-        slog_fatal("could not read from redis");
-        exit(EXIT_FAILURE);
-    }
 
     slog_trace("reply returned with: %s", this->reply->str);
     int lastChannelID = atoi(this->reply->str);
@@ -231,7 +225,7 @@ std::string RedisHandler::getValue(std::string key)
     return value;
 }
 
-int RedisHandler::getFileSize(int channelID, int fileID)
+int RedisHandler::getFileSize(int channelID, int fileID, int packetSize)
 {
     /* This function will get the file size
        from given channel ID and file ID */
@@ -240,6 +234,13 @@ int RedisHandler::getFileSize(int channelID, int fileID)
 
     this->reply = (redisReply *)redisCommand(this->context, command.c_str());
     checkExecution(command);
+
+    if (this->reply->element[0]->str == NULL)
+    {
+        freeReplyObject(this->reply);
+        slog_warn("returning packet size instead of the file size");
+        return packetSize;
+    }
 
     slog_trace("reply returned with: %s", this->reply->element[0]->str);
     std::string metaData = this->reply->element[0]->str;

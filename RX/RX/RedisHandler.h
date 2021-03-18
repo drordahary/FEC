@@ -38,7 +38,7 @@ public:
     int getLastChannelID();
     std::string getFileName(int fileID, int channelID);
     std::string splitDataFileName();
-    int getFileSize(int channelID, int fileID);
+    int getFileSize(int channelID, int fileID, int packetSize);
 
     std::string getValue(std::string key);
     void setChannels(std::vector<std::string>& channels);

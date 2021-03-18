@@ -49,41 +49,52 @@ void RXDataReceiver::assumeCase()
     int channelID = 0;
     int fileID = 0;
     int packetID = 0;
+    int packetSize = 0;
 
     deserializer.deserializePacket(this->buffer);
 
     channelID = deserializer.getChannelID();
     fileID = deserializer.getFileID();
     packetID = deserializer.getPacketID();
+    packetSize = strnlen(this->buffer, this->bufferSize);
 
     if (!redisHandler.fileExists(channelID, fileID)) // File did not receive meta data
     {
         fileTracker.handleUntrackedFile(channelID, fileID, packetID, this->buffer);
-        this->handlingThreads.insert({fileID, false});
-        std::thread(&RXDataReceiver::checkUntrackedFile, this, channelID, fileID).detach();
+
+        if (this->handlingThreads.find(fileID) == this->handlingThreads.end())
+        {
+            this->handlingThreads.insert({fileID, false});
+            std::thread(&RXDataReceiver::checkUntrackedFile, this, channelID, fileID, packetID, packetSize).detach();
+        }
     }
 
     else
     {
         if (fileTracker.isFileUntracked(fileID)) // Untracked file
         {
-            if (!this->handlingThreads.at(fileID))
+            if (this->handlingThreads.find(fileID) == this->handlingThreads.end() || !this->handlingThreads.at(fileID))
             {
                 this->receivedFiles.insert({fileID, fileTracker.getUntrackedPackets(fileID)});
+                slog_trace("tracking file from main function");
                 fileTracker.trackFile(channelID, fileID, this->redisHandler.getFileName(fileID, channelID),
-                                      strnlen(this->buffer, this->bufferSize));
-                                      
-                fileTracker.eraseUntrackedFile(fileID);
+                                      packetSize, this->redisHandler.getFileSize(channelID, fileID, packetSize));
             }
-
-            this->handlingThreads[fileID] = false;
         }
 
-        handleData(channelID, fileID, packetID);
+        if (this->handlingThreads.find(fileID) == this->handlingThreads.end())
+        {
+            handleData(channelID, fileID, packetID, packetSize);
+        }
+
+        else
+        {
+            this->handlingThreads.erase(fileID);
+        }
     }
 }
 
-void RXDataReceiver::handleData(int channelID, int fileID, int packetID)
+void RXDataReceiver::handleData(int channelID, int fileID, int packetID, int packetSize)
 {
     /* and will write the 
 	   received buffer to a matched file
@@ -92,10 +103,11 @@ void RXDataReceiver::handleData(int channelID, int fileID, int packetID)
        If the current file ID has been changed it'll close
        the current file and will open a new one */
 
+    std::lock_guard<std::mutex> guard(this->mLock);
     int fileSize = 0;
     std::string fileName;
 
-    fileSize = this->redisHandler.getFileSize(channelID, fileID);
+    fileSize = this->redisHandler.getFileSize(channelID, fileID, packetSize);
 
     if (this->receivedFiles.find(fileID) == this->receivedFiles.end())
     {
@@ -108,7 +120,9 @@ void RXDataReceiver::handleData(int channelID, int fileID, int packetID)
     if (std::find(start, stop, packetID) == stop)
     {
         this->receivedFiles.at(fileID).push_back(packetID);
+        slog_trace("calling getFileName()...");
         fileName = this->redisHandler.getFileName(fileID, channelID);
+        slog_trace("in handleData() file name is: %s", fileName.c_str());
 
         int packetSize = strnlen(this->buffer, this->bufferSize);
 
@@ -118,7 +132,7 @@ void RXDataReceiver::handleData(int channelID, int fileID, int packetID)
     }
 }
 
-void RXDataReceiver::checkUntrackedFile(int channelID, int fileID)
+void RXDataReceiver::checkUntrackedFile(int channelID, int fileID, int packetID, int packetSize)
 {
     /* This function will check every 100ms if for 5 times
        the file received its meta data in Redis
@@ -135,9 +149,10 @@ void RXDataReceiver::checkUntrackedFile(int channelID, int fileID)
                 this->handlingThreads[fileID] = true;
 
                 this->receivedFiles.insert({fileID, fileTracker.getUntrackedPackets(fileID)});
+                slog_trace("tracking file from thread");
                 this->fileTracker.trackFile(channelID, fileID, this->redisHandler.getFileName(fileID, channelID),
-                                            strnlen(this->buffer, bufferSize));
-                fileTracker.eraseUntrackedFile(fileID);
+                                            packetSize, this->redisHandler.getFileSize(channelID, fileID, packetSize));
+                handleData(channelID, fileID, packetID, packetSize);
             }
 
             return;
@@ -145,4 +160,6 @@ void RXDataReceiver::checkUntrackedFile(int channelID, int fileID)
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+
+    this->handlingThreads.erase(fileID);
 }

@@ -1,12 +1,11 @@
 #include "FileTracker.h"
 
-FileTracker::FileTracker(int bufferSize) : fileMonitor(bufferSize)
+FileTracker::FileTracker(int bufferSize) : fileMonitor(bufferSize), readFrom(NULL)
 {
     /* The constructor will set bufferSize
        and will create the object */
 
     this->bufferSize = bufferSize;
-    this->readFrom = NULL;
 }
 
 FileTracker::~FileTracker()
@@ -14,9 +13,9 @@ FileTracker::~FileTracker()
     /* The destructor will close the 
        files and deallocate the memory */
 
-    if (this->readFrom != NULL)
+    if (this->readFrom.is_open())
     {
-        fclose(this->readFrom);
+        this->readFrom.close();
     }
 
     this->fileBuilder.closeFile();
@@ -65,21 +64,29 @@ void FileTracker::writeData(int channelID, int fileID, int packetID, const char 
     this->fileBuilder.closeFile();
 }
 
-void FileTracker::trackFile(int channelID, int fileID, std::string fileName, int packetSize)
+void FileTracker::trackFile(int channelID, int fileID, std::string fileName, int packetSize, int writeToSize)
 {
     /* This function will only be called if there is an untracked 
        file that received meta data and can be used normally */
 
     if (this->untrackedFiles.find(fileID) != this->untrackedFiles.end())
     {
+        this->eraseUntrackedFile(fileID);
+
         std::string read = std::string(UNTRACKED) + "/" + std::to_string(channelID) + std::to_string(fileID);
         slog_trace("file to read from is: %s", read.c_str());
-        this->readFrom = fopen(read.c_str(), "rb");
 
-        fseek(this->readFrom, 0, SEEK_END);
-        int fileSize = ftell(this->readFrom);
-        fseek(this->readFrom, 0, SEEK_SET);
+        this->readFrom.open(read, std::ios::binary);
+        if (!this->readFrom.is_open())
+        {
+            return;
+        }
+
+        this->readFrom.ignore(std::numeric_limits<std::streamsize>::max());
+        int fileSize = this->readFrom.gcount();
         slog_trace("file size is %d", fileSize);
+        this->readFrom.clear();
+        this->readFrom.seekg(0, std::ios_base::beg);
 
         std::string newFileName = std::string(FILES_PATH) + "/" + fileName;
         slog_trace("file to write to: %s", newFileName.c_str());
@@ -90,44 +97,50 @@ void FileTracker::trackFile(int channelID, int fileID, std::string fileName, int
         int amountRead = -1;
         int packetID;
         size_t len = 0;
-        char *buffer = new char[this->bufferSize + 1]();
-        buffer[bufferSize] = '\0';
+        //char *buffer = new char[this->bufferSize + 1];
+        //buffer[bufferSize] = '\0';
+        std::vector<char> buffer;
+        buffer.resize(bufferSize);
+        std::string line;
 
         while (offset < fileSize)
         {
             /* Reading the packet ID and the size */
 
-            amountRead = -1;
-            fseek(this->readFrom, offset, SEEK_SET);
+            amountRead = 0;
+            this->readFrom.seekg(offset);
 
-            amountRead = getline(&buffer, &len, this->readFrom);
-            if (amountRead == -1)
-            {
-                slog_error("couldn't read the file: %s", read.c_str());
-                return;
-            }
+            std::getline(this->readFrom, line);
+            amountRead += line.length() + 1;
 
-            std::string metaData = buffer;
+            std::string metaData = line;
             slog_trace("meta data is: %s", metaData.c_str());
             packetID = std::stoul(metaData.substr(0, metaData.find(',')), nullptr, 16);
             amountToRead = std::stoi(metaData.substr(metaData.find(',') + 1, metaData.length()));
 
             offset += amountRead;
-            std::fill(buffer, buffer + bufferSize, 0);
 
             /* Reading the actual data and writing it to the file */
 
-            fseek(this->readFrom, offset, SEEK_SET);
-            fread(buffer, 1, amountToRead, this->readFrom);
-            this->fileBuilder.writeToFile(buffer, amountToRead, fileMonitor.calculateOffset(fileSize, packetID, packetSize));
+            slog_trace("seeking...");
+            this->readFrom.seekg(offset);
+            slog_trace("reading...");
+            //fread(buffer, 1, amountToRead, this->readFrom);
+            this->readFrom.read(&buffer[0], amountToRead);
+            slog_trace("data is: %s", buffer.data());
+            slog_trace("writing...");
+            this->fileBuilder.writeToFile(&buffer[0], amountToRead, fileMonitor.calculateOffset(writeToSize, packetID, packetSize));
 
+            slog_trace("flushing the buffer...");
             this->fileBuilder.flushBuffer();
             offset += amountToRead + 1;
-            std::fill(buffer, buffer + bufferSize, 0);
+            slog_trace("zeroing the buffer... buffer size is: %d", bufferSize);
+            std::fill(buffer.begin(), buffer.end(), '\0');
         }
 
+        slog_info("closing the file");
         this->fileBuilder.closeFile();
-        delete[] buffer;
+        slog_info("finished task");
     }
 }
 

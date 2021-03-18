@@ -14,7 +14,7 @@ class FileTracker
 {
 private:
     FileBuilder fileBuilder;
-    FILE *readFrom;
+    std::ifstream readFrom;
     std::map<int, std::vector<int>> untrackedFiles;
     int bufferSize;
 
@@ -24,7 +24,7 @@ public:
     ~FileTracker();
 
     void handleUntrackedFile(int channelID, int fileID, int packetID, const char *buffer);
-    void trackFile(int channelID, int fileID, std::string fileName, int packetSize);
+    void trackFile(int channelID, int fileID, std::string fileName, int packetSize, int writeToSize);
 
     void writeData(int channelID, int fileID, int packetID, const char *buffer);
     void eraseUntrackedFile(int fileID);

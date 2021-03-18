@@ -22,7 +22,7 @@
 				"${fileDirname}/${fileBasenameNoExtension}",
 				"-lhiredis",
 				"-lslog",
-				"-lpthread"
+				"-pthread"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"

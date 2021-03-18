@@ -49,6 +49,7 @@
         "thread": "cpp",
         "iomanip": "cpp",
         "cinttypes": "cpp",
-        "csignal": "cpp"
+        "csignal": "cpp",
+        "iterator": "cpp"
     }
 }

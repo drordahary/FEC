@@ -14,6 +14,8 @@ private:
     FileTracker fileTracker;
     int lastUpdatedPacketID;
 
+    std::mutex mLock;
+
     std::map<int, std::vector<int>> receivedFiles;
     std::map<int, bool> handlingThreads;
 
@@ -24,6 +26,6 @@ public:
     ~RXDataReceiver();
 
     void receiveData();
-    void handleData(int channelID, int fileID, int packetID);
-    void checkUntrackedFile(int channelID, int fileID);
+    void handleData(int channelID, int fileID, int packetID, int packetSize);
+    void checkUntrackedFile(int channelID, int fileID, int packetID, int packetSize);
 };
