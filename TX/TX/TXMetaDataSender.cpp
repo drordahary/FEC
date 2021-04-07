@@ -71,7 +71,7 @@ void TXMetaDataSender::sendMetaData()
 
                 this->directoryReader.moveFile(TOSEND_PATH, *start, trimmedPath);
                 slog_info("file: %s moved to ToSend", (*start).c_str());
-
+                
                 bufferBuilder();
                 sendPacket();
 
