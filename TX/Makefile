@@ -1,4 +1,7 @@
-install: install-hiredis install-slog install-service
+install: install-hiredis install-slog
+	mkdir -p TX/ToSend
+	mkdir -p TX/Archive
+	mkdir -p TX/Logs
 	/usr/bin/g++ -g TX/TX.cpp TX/FileReader.cpp TX/Serializer.cpp TX/RedisHandler.cpp TX/DirectoryReader.cpp TX/TXSender.cpp TX/TXDataSender.cpp TX/TXMetaDataSender.cpp TX/HierarchyBuilder.cpp TX/ThreadPool.cpp TX/Settings.cpp -o TX/TX -lhiredis -lslog -lpthread
 
 install-hiredis:

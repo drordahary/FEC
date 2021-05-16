@@ -39,7 +39,7 @@ int main()
 	return 0;
 }
 
-RX::RX() : redisHandler(2)
+RX::RX() : redisHandler(3)
 {
 	/* This constructor will initialize
 	   Redis handler and Settings */

@@ -1,4 +1,7 @@
-install: install-hiredis install-slog install-service
+install: install-hiredis install-slog
+	mkdir -p RX/Files
+	mkdir -p RX/Untracked
+	mkdir -p RX/Logs
 	/usr/bin/g++ -g RX/RX.cpp RX/Deserializer.cpp RX/FileBuilder.cpp RX/RXReceiver.cpp RX/RXDataReceiver.cpp RX/RedisHandler.cpp RX/RXMetaDataReceiver.cpp RX/HierarchyBuilder.cpp RX/Settings.cpp RX/FileTracker.cpp RX/FileMonitor.cpp -o RX/RX -lhiredis -lslog -lpthread
 
 install-hiredis:
